@@ -21,6 +21,8 @@
   :cljsbuild {:builds [{:source-paths ["src" "test"]
                         :compiler {:output-to "target/cljs-xml.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]
+                                   :pretty-print true
+                                   :foreign-libs [{:file "node_modules/sax/lib/sax.js"
+                                                   :provides  ["js.sax"]}]}}]
               :test-commands {"unit-tests" ["phantomjs" :runner
                                             "target/cljs-xml.js"]}})
