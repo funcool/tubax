@@ -5,43 +5,13 @@
             [cljs-xml.core :as core]
             [cemerick.cljs.test :as t]))
 
-(def example-xml-1 "
-<?xml version=\"1.0\" encoding=\"UTF-8\" ?>
-<rss version=\"2.0\">
-  <channel>
-    <title>RSS Title</title>
-    <description>This is an example of an RSS feed</description>
-    <link>http://www.example.com/main.html</link>
-    <lastBuildDate>Mon, 06 Sep 2010 00:01:00 +0000 </lastBuildDate>
-    <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
-    <ttl>1800</ttl>
-
-    <item>
-      <title>Example entry</title>
-      <description>Here is some text containing an interesting description.</description>
-      <link>http://www.example.com/blog/post/1</link>
-      <guid isPermaLink=\"false\">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
-      <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
-    </item>
-    <item>
-      <title>Example entry2</title>
-      <description>Here is some text containing an interesting description.</description>
-      <link>http://www.example.com/blog/post/1</link>
-      <guid isPermaLink=\"false\">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
-      <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
-    </item>
-  </channel>
-</rss>
-")
-
 (deftest ^:async parser-case1
   (testing "Case 1 - Empty element"
     (print "== case 1")
     (go
       (let [xml "<element/>"
             result (-> xml core/xml->clj <!)]
-        (is (contains? result :element))
-        (is (= nil (-> result :element )))
+        (is (= result [:element {} []]))
         (done)))))
 
 (deftest ^:async parser-case2
@@ -50,11 +20,7 @@
     (go
       (let [xml "<element att1='a' att2='b'/>"
             result (-> xml core/xml->clj <!)]
-        (is (contains? result :element))
-        (is (contains? (:element result) :att1))
-        (is (contains? (:element result) :att2))
-        (is (= "a" (-> result :element :att1)))
-        (is (= "b" (-> result :element :att2)))
+        (is (= result [:element {:att1 "a" :att2 "b"} []]))
         (done)))))
 
 (deftest ^:async parser-case3
@@ -63,8 +29,7 @@
     (go
       (let [xml "<element>value</element>"
             result (-> xml core/xml->clj <!)]
-        (is (contains? result :element))
-        (is (= "value" (-> result :element)))
+        (is (= result [:element {} ["value"]]))
         (done)))))
 
 (deftest ^:async parser-case4
@@ -73,10 +38,105 @@
     (go
       (let [xml "<element att1='a' att2='b'>value</element>"
             result (-> xml core/xml->clj <!)]
-        (is (contains? result :element))
-        (is (contains? (-> result :element first) :att1))
-        (is (contains? (-> result :element first) :att2))
-        (is (= "a" (-> result :element first :att1)))
-        (is (= "b" (-> result :element first :att2)))
-        (is (= "value" (-> result :element second)))
+        (is (= result [:element {:att1 "a" :att2 "b"} ["value"]]))
+        (done)))))
+
+(deftest ^:async parser-case5
+  (testing "Case 5 - Subtree elements (no repetition)"
+    (print "== recursive 1")
+    (go
+      (let [xml "<element><elem-a>1</elem-a><elem-b>2</elem-b><elem-c>3</elem-c></element>"
+            result (-> xml core/xml->clj <!)]
+        (is (= result [:element {} [[:elem-a {} ["1"]] [:elem-b {} ["2"]] [:elem-c {} ["3"]]]]))
+        (done)))))
+
+(deftest ^:async parser-case6
+  (testing "Case 6 - Subtree elements (repetition)"
+    (print "== recursive 2")
+    (go
+      (let [xml "<element><elem-a>1</elem-a><elem-a>2</elem-a><elem-b>3</elem-b></element>"
+            result (-> xml core/xml->clj <!)]
+        (is (= result [:element {} [[:elem-a {} ["1"]] [:elem-a {} ["2"]] [:elem-b {} ["3"]]]]))
+        (done)))))
+
+(deftest ^:async parser-case7
+  (testing "Case 7 - Nested tree"
+    (print "== recursive 3")
+    (go
+      (let [xml "<element><elem-a><elem-b><elem-c>test</elem-c></elem-b></elem-a></element>"
+            result (-> xml core/xml->clj <!)]
+        (is (= result [:element {} [[:elem-a {} [[:elem-b {} [[:elem-c {} ["test"]]]]]]  ]]))
+        (done)))))
+
+(deftest ^:async parser-case8
+  (testing "Case 8 - Nested tree with children"
+    (print "== recursive 4")
+    (go
+      (let [xml "<element><elem-a><elem-b><elem-c>test1</elem-c><elem-c>test2</elem-c><elem-c>test3</elem-c></elem-b></elem-a><elem-a>other</elem-a></element>"
+            result (-> xml core/xml->clj <!)]
+        (is (= result
+               [:element {}
+                [[:elem-a {}
+                  [[:elem-b {}
+                    [[:elem-c {} ["test1"]]
+                     [:elem-c {} ["test2"]]
+                     [:elem-c {} ["test3"]]]]]]
+                 [:elem-a {} ["other"]]]]))
+        (done)))))
+
+(def xml-parser-full "
+ <rss version=\"2.0\">
+   <channel>
+     <title>RSS Title</title>
+     <description>This is an example of an RSS feed</description>
+     <link>http://www.example.com/main.html</link>
+     <lastBuildDate>Mon, 06 Sep 2010 00:01:00 +0000 </lastBuildDate>
+     <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+     <ttl>1800</ttl>
+
+     <item>
+       <title>Example entry</title>
+       <description>Here is some text containing an interesting description.</description>
+       <link>http://www.example.com/blog/post/1</link>
+       <guid isPermaLink=\"false\">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
+       <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+     </item>
+     <item>
+       <title>Example entry2</title>
+       <description>Here is some text containing an interesting description.</description>
+       <link>http://www.example.com/blog/post/1</link>
+       <guid isPermaLink=\"false\">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
+       <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+     </item>
+   </channel>
+ </rss>
+")
+
+(deftest ^:async parser-full
+  (testing "Full parser"
+    (print "== Full parser")
+    (go
+      (let [xml xml-parser-full
+            result (-> xml core/xml->clj <!)]
+        (is (= result
+               [:rss {:version "2.0"}
+                [[:channel {}
+                  [[:title {} ["RSS Title"]]
+                   [:description {} ["This is an example of an RSS feed"]]
+                   [:link {} ["http://www.example.com/main.html"]]
+                   [:lastBuildDate {} ["Mon, 06 Sep 2010 00:01:00 +0000"]]
+                   [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]
+                   [:ttl {} ["1800"]]
+                   [:item {}
+                    [[:title {} ["Example entry"]]
+                     [:description {} ["Here is some text containing an interesting description."]]
+                     [:link {} ["http://www.example.com/blog/post/1"]]
+                     [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+                     [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]
+                   [:item {}
+                    [[:title {} ["Example entry2"]]
+                     [:description {} ["Here is some text containing an interesting description."]]
+                     [:link {} ["http://www.example.com/blog/post/1"]]
+                     [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+                     [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]]]]]))
         (done)))))
