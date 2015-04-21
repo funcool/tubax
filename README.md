@@ -5,7 +5,7 @@ Currently there is no good way to parse XML and other markup languages with Cloj
 
 This last point is critical because HTML5 Web Workers don't have access to these APIs so an alternative is necessary.
 
-*cljs-xl* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
+*cljs-xml* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
 
 Over this interface we provide a core/async interface that is used in a similar way to this:
 

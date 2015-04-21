@@ -1,6 +1,6 @@
 (ns cljs-xml.core
   (:require [cljs.core.async :as async :refer [put! chan]]
-            [js.sax :as sax]
+            [ext.saxjs :as sax]
             [clojure.zip :as zip]
             [clojure.string :as str]))
 
@@ -45,7 +45,7 @@
           #(put! ret-chan (first (zip/root @document))))
 
     (set! (.-onerror parser)
-          #(put! ret-chan {:error (str error)}))
+          #(put! ret-chan {:error (str %)}))
 
     (.write parser source)
     (.close parser)
