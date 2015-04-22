@@ -11,7 +11,8 @@
                  [funcool/promesa "0.1.1"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-externs "0.1.3"]]
+            [lein-externs "0.1.3"]
+            [lein-auto "0.1.2"]]
 
   :hooks [leiningen.cljsbuild]
 
