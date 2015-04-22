@@ -1,4 +1,4 @@
-(defproject cljs-xml "0.1.0-SNAPSHOT"
+(defproject tubax "0.1.0-SNAPSHOT"
   :description "A ClojureScript library to parse XML files"
   :url "https://github.com/funcool/tubax"
   :license {:name "Apache 2.0"
@@ -28,7 +28,7 @@
                            :source-map true
                            :static-fns true
                            :cache-analysis false
-                           :main cljs-xml.core-test
+                           :main tubax.core-test
                            :optimizations :none
                            :target :nodejs
                            :pretty-print true }}]})

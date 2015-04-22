@@ -1,11 +1,19 @@
-cljs-xml
+tubax
 ========
+http://en.wikipedia.org/wiki/Tubax
 
+<blockquote>
+Tubax is more focused and compact than that of the full-sized contrabass saxophone.
+</blockquote>
+
+## Rationale
 Currently there is no good way to parse XML and other markup languages with Clojurescript. There are no Clojurescript-based libraries and most of the Javascript ones require access to the DOM.
 
 This last point is critical because HTML5 Web Workers don't have access to these APIs so an alternative is necessary.
 
-*cljs-xml* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
+## Usage
+
+*tubax* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
 
 Over this interface we provide a core/async interface that is used in a similar way to this:
 

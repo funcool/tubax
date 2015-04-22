@@ -1,8 +1,8 @@
-(ns cljs-xml.core-test
+(ns tubax.core-test
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs-testrunners.node :as node]
+  (:require [tubax.core :as core]
+            [cljs-testrunners.node :as node]
             [cljs.core.async :as async :refer [<!]]
-            [cljs-xml.core :as core]
             [cljs.test :as test :refer-macros [deftest is async testing]]))
 
 (enable-console-print!)
