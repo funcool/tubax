@@ -43,28 +43,26 @@ Over this interface we provide a core/async interface that is used in a similar 
            </channel>
          </rss>")
 
-(go
-  (let [parsed-xml (<! (core/xml->clj xml))]
-     (print (str parsed-xml)))
+(core/xml->clj xml)
 
-;; [:rss {:version "2.0"}
-;;   [[:channel {}
-;;     [[:title {} ["RSS Title"]]
-;;      [:description {} ["This is an example of an RSS feed"]]
-;;      [:link {} ["http://www.example.com/main.html"]]
-;;      [:lastBuildDate {} ["Mon, 06 Sep 2010 00:01:00 +0000"]]
-;;      [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]
-;;      [:ttl {} ["1800"]]
-;;      [:item {}
-;;       [[:title {} ["Example entry"]]
-;;        [:description {} ["Here is some text containing an interesting description."]]
-;;        [:link {} ["http://www.example.com/blog/post/1"]]
-;;        [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
-;;        [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]
-;;      [:item {}
-;;       [[:title {} ["Example entry2"]]
-;;        [:description {} ["Here is some text containing an interesting description."]]
-;;        [:link {} ["http://www.example.com/blog/post/1"]]
-;;        [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
-;;        [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]]]]]
+;; => [:rss {:version "2.0"}
+;;      [[:channel {}
+;;        [[:title {} ["RSS Title"]]
+;;         [:description {} ["This is an example of an RSS feed"]]
+;;         [:link {} ["http://www.example.com/main.html"]]
+;;         [:lastBuildDate {} ["Mon, 06 Sep 2010 00:01:00 +0000"]]
+;;         [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]
+;;         [:ttl {} ["1800"]]
+;;         [:item {}
+;;          [[:title {} ["Example entry"]]
+;;           [:description {} ["Here is some text containing an interesting description."]]
+;;           [:link {} ["http://www.example.com/blog/post/1"]]
+;;           [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+;;           [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]
+;;         [:item {}
+;;          [[:title {} ["Example entry2"]]
+;;           [:description {} ["Here is some text containing an interesting description."]]
+;;           [:link {} ["http://www.example.com/blog/post/1"]]
+;;           [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+;;           [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]]]]]
 ```

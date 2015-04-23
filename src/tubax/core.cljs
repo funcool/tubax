@@ -1,6 +1,5 @@
 (ns tubax.core
-  (:require [cljs.core.async :as async :refer [put! chan]]
-            [ext.saxjs :as sax]
+  (:require [ext.saxjs :as sax]
             [clojure.zip :as zip]
             [clojure.string :as str]))
 
@@ -25,9 +24,9 @@
       document)))
 
 (defn xml->clj [source]
-  (let [ret-chan (chan)
-        parser (.parser js/sax true)
-        document (atom (zip/vector-zip []))]
+  (let [parser (.parser js/sax true)
+        document (atom (zip/vector-zip []))
+        result (atom nil)]
     ;; OPEN TAG
     (set! (.-onopentag parser)
           #(swap! document (partial add-node-document %)))
@@ -42,11 +41,15 @@
 
     ;; END PARSING
     (set! (.-onend parser)
-          #(put! ret-chan (first (zip/root @document))))
+          #(when (nil? @result)
+            (reset! result {:success (first (zip/root @document))})))
 
+    ;; ERROR
     (set! (.-onerror parser)
-          #(put! ret-chan {:error (str %)}))
+          #(reset! result {:error (str %)}))
 
     (.write parser source)
     (.close parser)
-    ret-chan))
+
+    (or (:success @result)
+        (throw (js/Error. (:error @result))))))
