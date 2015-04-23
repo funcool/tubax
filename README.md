@@ -3,7 +3,7 @@ tubax
 http://en.wikipedia.org/wiki/Tubax
 
 <blockquote>
-Tubax is more focused and compact than that of the full-sized contrabass saxophone.
+While the timbre of the E♭ tubax is more focused and compact than that of the full-sized contrabass saxophone.
 </blockquote>
 
 ## Rationale
