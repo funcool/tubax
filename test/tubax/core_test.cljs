@@ -145,5 +145,76 @@
       (is (thrown? js/Error (-> xml core/xml->clj))))))
 
 
+;;; TEST OPTIONS
+(deftest parser-options-strict
+  (testing "Option 1 - Strict mode"
+    (let [xml "<element><a><b></b></a>"]
+      (is (thrown? js/Error (= (core/xml->clj xml :strict true))))
+      (is (= (core/xml->clj xml :strict false) [:element {} [[:a {} [[:b {} []]]]]])))))
+
+(deftest parser-options-trim
+  (testing "Option 2 - Trim"
+    (let [xml "<element>  test  </element>"]
+      (is (= (core/xml->clj xml :trim false) [:element {} ["  test  "]]))
+      (is (= (core/xml->clj xml :trim true) [:element {} ["test"]]))
+      (is (= (core/xml->clj xml) [:element {} ["test"]])))))
+
+(deftest parser-options-normalize
+  (testing "Option 3 - Normalize"
+    (let [xml "<element>testing\nnormalize</element>"]
+      (is (= (core/xml->clj xml :normalize false) [:element {} ["testing\nnormalize"]]))
+      (is (= (core/xml->clj xml :normalize true) [:element {} ["testing normalize"]]))
+      (is (= (core/xml->clj xml) [:element {} ["testing\nnormalize"]])))))
+
+(deftest parser-options-lowercase
+  (testing "Option 4 - Lowercase"
+    (let [xml "<element att1='att'>test</element>"]
+      (is (= (core/xml->clj xml :strict false :lowercase false) [:ELEMENT {:ATT1 "att"} ["test"]]))
+      (is (= (core/xml->clj xml :strict false :lowercase true) [:element {:att1 "att"} ["test"]]))
+      (is (= (core/xml->clj xml :strict false) [:element {:att1 "att"} ["test"]])))))
+
+(deftest parser-options-xmlns
+  (testing "Option 5 - XMLNS"
+    (let [xml "<element xmlns='http://foo' xmlns:t='http://t' t:att1='att'>
+                  <t:test>a</t:test>
+                  <test>b</test>
+               </element>"]
+      (is (= (core/xml->clj xml :xmlns false)
+             [:element {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
+              [[:t:test {} ["a"]]
+               [:test {} ["b"]]]]))
+
+      (is (= (core/xml->clj xml :xmlns true)
+             [:element {:xmlns   {:name "xmlns"
+                                  :value "http://foo"
+                                  :prefix "xmlns"
+                                  :local ""
+                                  :uri "http://www.w3.org/2000/xmlns/"}
+                        :xmlns:t {:name "xmlns:t"
+                                  :value "http://t"
+                                  :prefix "xmlns"
+                                  :local "t"
+                                  :uri "http://www.w3.org/2000/xmlns/"}
+                        :t:att1 {:name "t:att1"
+                                 :value "att"
+                                 :prefix "t"
+                                 :local "att1"
+                                 :uri "http://t"}}
+              [[:t:test {} ["a"]]
+               [:test {} ["b"]]]]))
+      (is (= (core/xml->clj xml)
+             [:element {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
+              [[:t:test {} ["a"]]
+               [:test {} ["b"]]]])))))
+
+
+(deftest parser-options-strict-entities
+  (testing "Option 6 - Strict Entities"
+    (let [xml "<element att1='&amp;&lt;&aacute;'>&amp;&lt;&aacute;</element>"]
+      (is (= (core/xml->clj xml :strict-entities false) [:element {:att1 "&<á"} ["&<á"]]))
+      (is (thrown? js/Error (= (core/xml->clj xml :strict-entities true))))
+      (is (= (core/xml->clj xml) [:element {:att1 "&<á"} ["&<á"]])))))
+
+
 (defn main [] (node/run-tests))
 (set! *main-cli-fn* main)

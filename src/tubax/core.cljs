@@ -18,13 +18,25 @@
   (-> document zip/up zip/up))
 
 (defn- add-text [text document]
-  (let [trimmed (str/trim text)]
-    (if (not (empty? trimmed))
-      (zip/append-child document trimmed)
-      document)))
+  (if (not (empty? text))
+    (zip/append-child document text)
+    document))
 
-(defn xml->clj [source]
-  (let [parser (.parser js/sax true)
+(defn xml->clj [source & {:keys [strict trim normalize
+                                lowercase xmlns position
+                                strict-entities]
+                          :or {strict true
+                               trim true
+                               normalize false
+                               lowercase true
+                               position true
+                               strict-entities false}}]
+  (let [parser (.parser js/sax strict #js {"trim" trim
+                                           "normalize" normalize
+                                           "lowercase" lowercase
+                                           "xmlns" xmlns
+                                           "position" position
+                                           "strictEntities" strict-entities})
         document (atom (zip/vector-zip []))
         result (atom nil)]
     ;; OPEN TAG
