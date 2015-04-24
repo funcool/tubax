@@ -210,8 +210,6 @@ When activated, it makes the parser to fail when it founds http://www.w3.org/TR/
 
 === Utility functions
 
-WARNING: Not yet implemented on the master branch
-
 [source,clojure]
 ----
 (require '[tubax.helpers :as th])
@@ -263,14 +261,14 @@ These methods retrieve the first node that match the query passed as argument.
 
 [source,clojure]
 ----
-(th/find-first result :tag :item)
+(th/find-first result {:tag :item})
 
 ;; => [:item {} [[:title {} ["Hello world"]]]]
 ----
 
 [source,clojure]
 ----
-(th/find-first result :path [:rss :channel :description])
+(th/find-first result {:path [:rss :channel :description]})
 
 ;; => [:description {} ["This is an example of an RSS feed"]]
 ----
@@ -279,7 +277,7 @@ Search for the first element that have the attribute defined
 
 [source,clojure]
 ----
-(th/find-first result :attribute :isPermaLink)
+(th/find-first result {:attribute :isPermaLink})
 
 ;; => [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
 ----
@@ -288,7 +286,7 @@ Search for the first element that have an attribute with the specified value
 
 [source,clojure]
 ----
-(th/find-first result :attribute [:isPermaLink true])
+(th/find-first result {:attribute [:isPermaLink true]})
 
 ;; => [:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
 ----
@@ -301,28 +299,28 @@ These methods retrieve a lazy sequence with the elements which match the query u
 
 [source,clojure]
 ----
-(th/find-all result :tag :link)
+(th/find-all result {:tag :link})
 
 ;; => ([:link {} ["http://www.example.com/main.html"]] [:link {} ["http://www.example.com/blog/post/1"]])
 ----
 
 [source,clojure]
 ----
-(th/find-all result :path [:rss :channel :item :title])
+(th/find-all result {:path [:rss :channel :item :title]})
 
 ;; => ([:title {} ["Example entry"]] [:title {} ["Example entry2"]])
 ----
 
 [source,clojure]
 ----
-(th/find-all result :attribute :isPermaLink)
+(th/find-all result {:attribute :isPermaLink})
 
 ;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]] [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
 ----
 
 [source,clojure]
 ----
-(th/find-all result :attribute [:isPermaLink "true"])
+(th/find-all result {:attribute [:isPermaLink "true"]})
 
 ;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
 ----
