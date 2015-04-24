@@ -8,8 +8,10 @@
                                   [org.clojure/clojurescript "0.0-3196"]
                                   [funcool/cljs-testrunners "0.1.0-SNAPSHOT"]]
                    :plugins [[lein-cljsbuild "1.0.5"]
-                             [lein-externs "0.1.3"]]
-                   :hooks [leiningen.cljsbuild]}}
+                             [lein-externs "0.1.3"]
+                             [lein-asciidoctor "0.1.14"]]
+                   :asciidoctor {:sources "doc/*.adoc"
+                                 :to-dir "target/doc"}}}
 
   :test-paths ["test"]
   :source-paths ["src" "test"]

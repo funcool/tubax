@@ -13,9 +13,11 @@ This last point is critical because HTML5 Web Workers don't have access to these
 
 ## Usage
 
-*tubax* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
+*Tubax* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
 
-Over this interface we provide a core/async interface that is used in a similar way to this:
+You can check full documentation here: http://funcool.github.io/funcool/latest/
+
+A basic usage example:
 
 ```clojure
 (def xml "<rss version=\"2.0\">
@@ -66,3 +68,7 @@ Over this interface we provide a core/async interface that is used in a similar 
 ;;           [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
 ;;           [:pubDate {} ["Sun, 06 Sep 2009 16:20:00 +0000"]]]]]]]]
 ```
+
+## License
+
+Licensed under [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0)

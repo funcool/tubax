@@ -1,0 +1,347 @@
+= Tubax
+Alonso Torres, <alotor@gmail.com>
+:toc: left
+:numbered:
+:source-highlighter: coderay
+:sectlinks:
+
+== Introduction
+
+*Tubax* is a library to parse and convert XML raw data into native Clojurescript data structures.
+
+It uses https://github.com/isaacs/sax-js[sax.js] under the hood to provide a fast way to convert from XML.
+
+== Rationale
+
+Currently there is no good way to parse XML and other markup languages with Clojurescript. There are no Clojurescript-based libraries and most of the Javascript ones require access to the DOM.
+
+This last point is critical because HTML5 Web Workers don't have access to these APIs so an alternative is necessary.
+
+Another alternative to XML processing is to go to a middle-ground. There are some libraries that will parse XML into a JSON format.
+
+The problem with these is that JSON is not a faithfull representation of the XML format. There are some XML that couldn't be represented as JSON.
+
+For example, the following XML will loss information when transformed into JSON.
+
+[source,xml]
+----
+<root>
+    <field-a>A</field-a>
+    <field-b>B</field-b>
+    <field-a>A</field-a>
+</root>
+----
+
+== Install
+
+WARNING: Not on clojars yet. I'll update the information when it's available
+
+//  If you're using leingen just include it in your
+//  
+//  [source,clojure]
+//  ----
+//  [funcool/tubax "0.1.0"]
+//  ----
+
+== Usage
+
+All examples will use this XML as if it existed in a `(def xml-data "...")` definition.
+
+[source,xml]
+----
+<rss version="2.0">
+  <channel>
+    <title>RSS Title</title>
+    <description>This is an example of an RSS feed</description>
+    <link>http://www.example.com/main.html</link>
+    <lastBuildDate>Mon, 06 Sep 2010 00:01:00 +0000 </lastBuildDate>
+    <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+    <ttl>1800</ttl>
+    <item>
+      <title>Example entry</title>
+      <description>Here is some text containing an interesting description.</description>
+      <link>http://www.example.com/blog/post/1</link>
+      <guid isPermaLink="false">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
+      <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Example entry2</title>
+      <description>Here is some text containing an interesting description.</description>
+      <link>http://www.example.com/blog/post/1</link>
+      <guid isPermaLink="true">7bd204c6-1655-4c27-aeee-53f933c5395f</guid>
+      <pubDate>Sun, 06 Sep 2009 16:20:00 +0000</pubDate>
+    </item>
+  </channel>
+</rss>
+----
+
+=== Basic usage
+
+In order to parse a XML file you only have to make a call to the `xml->clj` function
+
+[source,clojure]
+----
+(require '[tubax.core :refer [xml->clj]])
+
+(xml->clj xml-data)
+----
+
+=== Additional options
+
+The library bundles https://github.com/isaacs/sax-js[sax.js library] as it's main dependency. You can pass the following options to the conversion to customize some behaviour.
+
+==== Strict mode
+
+*default* true
+
+When not in _strict mode_ the parser will be more forgiving on XML structure. If in strict mode, when there is a format failure the parsing will throw an exception.
+
+WARNING: Some "loosy" formats could cause unexpected behaviour so it's not recommended.
+
+[source,clojure]
+----
+(def xml-data "<a><b></a>")
+
+(core/xml->clj xml-data :strict false)
+
+;; => [:a {} [:b {} []]]
+
+(core/xml->clj xml-data :strict true)
+
+;; => js/Error #Parse error
+----
+
+==== Trim whitespaces
+
+*default* true
+
+This option will make the parsing to remove all the leading and trailing whitespaces in the text nodes.
+
+[source,clojure]
+----
+(def xml-data "<a>  test  </a>")
+
+(core/xml->clj xml-data :trim false)
+
+;; => [:a {} ["  test  "]]
+
+(core/xml->clj xml-data :trim true)
+
+;; => [:a {} ["test"]]
+----
+
+==== Normalize whitespaces
+
+*default* false
+
+Replace all whitespaces-characters (like tabs, end of lines, etc..) for whitespaces.
+
+[source,clojure]
+----
+(def xml-data "<a>normalize\ntest</a>")
+
+(core/xml->clj xml-data :normalize false)
+
+;; => [:a {} ["normalize\ntest"]]
+
+(core/xml->clj xml-data :normalize true)
+
+;; => [:a {} ["normalize test"]]
+----
+
+==== Lowercase (non-strict mode only)
+
+*default* true
+
+When on non-strict mode, all tags and attributes can be made upper-case just by setting this option.
+
+[source,clojure]
+----
+(def xml-data "<root att1='t1'>test</root>")
+
+(core/xml->clj xml-data :strict false :lowercase true)
+
+;; => [:root {:att1 "t1"} ["test"]]
+
+(core/xml->clj xml-data :strict false :lowercase false)
+
+;; => [:ROOT {:ATT1 "t1"} ["test"]]
+----
+
+==== Support for XML namespaces
+
+*default* false
+
+By default there is no additional data when a http://en.wikipedia.org/wiki/XML_namespace[XML namespace] is found.
+
+When the option _xmlns_ is activated there will be more information regarding the namespaces inside the node elements.
+
+[source,clojure]
+----
+(def xml-data "<element xmlns='http://foo'>value</element>")
+
+(core/xml->clj xml-data :xmlns false)
+
+;; => [:element {:xmlns "http://foo"} ["value"]]
+
+(core/xml->clj xml-data :xmlns true)
+
+;; => [:element {:xmlns {:name "xmlns" :value "http://foo" :prefix "xmlns" :local "" :uri "http://www.w3.org/2000/xmlns/"}} ["value"]]
+----
+
+==== Strict entities
+
+*default* false
+
+When activated, it makes the parser to fail when it founds http://www.w3.org/TR/REC-xml/#sec-predefined-ent[a non-predefined entity]
+
+[source,clojure]
+----
+(def xml-data "<element>&aacute;</element>")
+
+(core/xml->clj xml-data :strict-entities false)
+
+;; => [:element {} ["á"]]
+
+(core/xml->clj xml-data :strict-entities true)
+
+;; => js/Error #Parser error
+----
+
+=== Utility functions
+
+WARNING: Not yet implemented on the master branch
+
+[source,clojure]
+----
+(require '[tubax.helpers :as th])
+----
+
+For simplicity the following examples suppose:
+
+[source,clojure]
+----
+(require '[tubax.core :refer [xml->clj]])
+
+(def result (xml->clj xml-data))
+----
+
+==== Access data-structure
+
+[source,clojure]
+----
+(th/tag [:item {} ["Text"]])
+;; => :item
+----
+
+[source,clojure]
+----
+(th/attributes [:item {} ["Text"]])
+;; => {}
+----
+
+[source,clojure]
+----
+(th/children [:item {} ["Text"]])
+;; => ["Text"]
+----
+
+[source,clojure]
+----
+(th/text [:tag {} ["Text"]])
+;; => Text
+
+(th/text [:tag {} [[:item {} [...]]]])
+;; => nil
+----
+
+==== Find first node
+
+WARNING: Not yet implemented on the master branch
+
+These methods retrieve the first node that match the query passed as argument.
+
+[source,clojure]
+----
+(th/find-first result :tag :item)
+
+;; => [:item {} [[:title {} ["Hello world"]]]]
+----
+
+[source,clojure]
+----
+(th/find-first result :path [:rss :channel :description])
+
+;; => [:description {} ["This is an example of an RSS feed"]]
+----
+
+Search for the first element that have the attribute defined
+
+[source,clojure]
+----
+(th/find-first result :attribute :isPermaLink)
+
+;; => [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+----
+
+Search for the first element that have an attribute with the specified value
+
+[source,clojure]
+----
+(th/find-first result :attribute [:isPermaLink true])
+
+;; => [:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+----
+
+==== Find all nodes
+
+WARNING: Not yet implemented on the master branch
+
+These methods retrieve a lazy sequence with the elements which match the query used as argument.
+
+[source,clojure]
+----
+(th/find-all result :tag :link)
+
+;; => ([:link {} ["http://www.example.com/main.html"]] [:link {} ["http://www.example.com/blog/post/1"]])
+----
+
+[source,clojure]
+----
+(th/find-all result :path [:rss :channel :item :title])
+
+;; => ([:title {} ["Example entry"]] [:title {} ["Example entry2"]])
+----
+
+[source,clojure]
+----
+(th/find-all result :attribute :isPermaLink)
+
+;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]] [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
+----
+
+[source,clojure]
+----
+(th/find-all result :attribute [:isPermaLink "true"])
+
+;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
+----
+
+=== Usage examples
+
+WARNING: To do
+
+== Contribute
+
+Tubax does not have many restrictions for contributions. Just open an issue or pull request.
+
+== Runing tests
+
+[source]
+----
+lein test
+----
+
+== License
+
+This library is under the https://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 License].
