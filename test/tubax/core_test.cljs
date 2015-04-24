@@ -1,7 +1,10 @@
 (ns tubax.core-test
   (:require [tubax.core :as core]
             [cljs-testrunners.node :as node]
-            [cljs.test :as test :refer-macros [deftest is testing]]))
+            [cljs.test :as test :refer-macros [deftest is testing]]
+
+            ;; Additional test classes
+            [tubax.helpers-test]))
 
 ;;; TEST SUCCESS
 (deftest parser-case1
@@ -214,7 +217,3 @@
       (is (= (core/xml->clj xml :strict-entities false) [:element {:att1 "&<á"} ["&<á"]]))
       (is (thrown? js/Error (= (core/xml->clj xml :strict-entities true))))
       (is (= (core/xml->clj xml) [:element {:att1 "&<á"} ["&<á"]])))))
-
-
-(defn main [] (node/run-tests))
-(set! *main-cli-fn* main)

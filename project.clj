@@ -26,7 +26,7 @@
                            :source-map true
                            :static-fns true
                            :cache-analysis false
-                           :main tubax.core-test
+                           :main tubax.testrunner
                            :optimizations :none
                            :target :nodejs
                            :pretty-print true }}]})
