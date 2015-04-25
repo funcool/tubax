@@ -228,34 +228,32 @@ For simplicity the following examples suppose:
 
 [source,clojure]
 ----
-(th/tag [:item {} ["Text"]])
+(th/get-tag [:item {} ["Text"]])
 ;; => :item
 ----
 
 [source,clojure]
 ----
-(th/attributes [:item {} ["Text"]])
+(th/get-attributes [:item {} ["Text"]])
 ;; => {}
 ----
 
 [source,clojure]
 ----
-(th/children [:item {} ["Text"]])
+(th/get-children [:item {} ["Text"]])
 ;; => ["Text"]
 ----
 
 [source,clojure]
 ----
-(th/text [:tag {} ["Text"]])
+(th/get-text [:tag {} ["Text"]])
 ;; => Text
 
-(th/text [:tag {} [[:item {} [...]]]])
+(th/get-text [:tag {} [[:item {} [...]]]])
 ;; => nil
 ----
 
 ==== Find first node
-
-WARNING: Not yet implemented on the master branch
 
 These methods retrieve the first node that match the query passed as argument.
 
