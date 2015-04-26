@@ -38,6 +38,16 @@
       (recur (rest path-left)
              subtree))))
 
+(defn find-all-by-path [path node]
+  (cond
+    (empty? path) '()
+    (and (= (count path) 1) (= (get-tag node) (first path))) (list node)
+    (and (= (count path) 1)) '()
+    :else
+    (if (= (get-tag node) (first path))
+      (apply concat (map (partial find-all-by-path (rest path)) (get-children node)))
+      '())))
+
 ;; Dispatcher function for both 'find-first' an 'find-all'
 (defn- find-multi-dispatcher [_ param]
   (let [key (-> param keys first)]
@@ -57,11 +67,6 @@
 (defmethod find-first :tag [tree {:keys [tag]}]
   (first-tree #(= (get-tag %) tag) tree))
 
-(defmethod find-first :path [tree {:keys [path]}]
-  (if (and (not (empty? path)) (= (first path) (first tree)))
-    (find-first-by-path (rest path) tree)
-    nil))
-
 (defmethod find-first [:attribute :keyword] [tree {:keys [attribute]}]
   (first-tree #(contains? (get-attributes %) attribute) tree))
 
@@ -70,3 +75,24 @@
     (first-tree #(and (contains? (get-attributes %) key)
                       (= (get (get-attributes %) key) value)) tree)))
 
+(defmethod find-first :path [tree {:keys [path]}]
+  (if (and (not (empty? path)) (= (first path) (first tree)))
+    (find-first-by-path (rest path) tree)
+    nil))
+
+;; Find all
+(defmulti find-all find-multi-dispatcher)
+
+(defmethod find-all :tag [tree {:keys [tag]}]
+  (filter-tree #(= (get-tag %) tag) tree))
+
+(defmethod find-all [:attribute :keyword] [tree {:keys [attribute]}]
+  (filter-tree #(contains? (get-attributes %) attribute) tree))
+
+(defmethod find-all [:attribute :vector] [tree {:keys [attribute]}]
+  (let [[key value] attribute]
+    (filter-tree #(and (contains? (get-attributes %) key)
+                       (= (get (get-attributes %) key) value)) tree)))
+
+(defmethod find-all :path [tree {:keys [path]}]
+  (find-all-by-path path tree))

@@ -291,8 +291,6 @@ Search for the first element that have an attribute with the specified value
 
 ==== Find all nodes
 
-WARNING: Not yet implemented on the master branch
-
 These methods retrieve a lazy sequence with the elements which match the query used as argument.
 
 [source,clojure]
@@ -322,10 +320,6 @@ These methods retrieve a lazy sequence with the elements which match the query u
 
 ;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
 ----
-
-=== Usage examples
-
-WARNING: To do
 
 == Contribute
 

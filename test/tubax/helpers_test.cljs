@@ -84,5 +84,58 @@
     (is (= (helpers/find-first testing-data {:attribute [:not-existing true]})
            nil))
     (is (= (helpers/find-first testing-data {:attribute [:shouldfail]})
-           nil))
-    ))
+           nil))))
+
+(deftest find-all
+  (testing "Find all by tag"
+    (is (= (helpers/find-all testing-data {:tag :link})
+           '([:link {} ["http://www.example.com/main.html"]]
+             [:link {} ["http://www.example.com/blog/post/1"]]
+             [:link {} ["http://www.example.com/blog/post/2"]])))
+    (is (= (helpers/find-all testing-data {:tag :guid})
+           '([:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aaaa-111111111111"]]
+             [:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-bbbb-222222222222"]])))
+    (is (= (helpers/find-all testing-data {:tag :author})
+           '([:author {} "John McCarthy"])))
+    (is (= (helpers/find-all testing-data {:tag :no-tag})
+           '())))
+  (testing "Find first path"
+    (is (= (helpers/find-all testing-data {:path [:rss :channel :ttl]})
+           '([:ttl {} ["1800"]])))
+    (is (= (helpers/find-all testing-data {:path [:rss :channel :item :link]})
+           '([:link {} ["http://www.example.com/blog/post/1"]]
+             [:link {} ["http://www.example.com/blog/post/2"]])))
+    (is (= (helpers/find-all testing-data {:path [:rss :channel :item :notexists]})
+           '()))
+    (is (= (helpers/find-all testing-data {:path nil})
+           '()))
+    (is (= (helpers/find-all testing-data {:path []})
+           '()))
+    (is (= (helpers/find-all testing-data {:path [:badroot]})
+           '()))
+    )
+  (testing "Find all keyword"
+    (is (= (helpers/find-all testing-data {:attribute :isPermaLink})
+           '([:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aaaa-111111111111"]]
+             [:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-bbbb-222222222222"]])))
+    (is (= (helpers/find-all testing-data {:attribute :year})
+           '([:pubDate {:year "2013"} ["Sun, 06 Sep 2013 16:20:00 +0000"]]
+             [:pubDate {:year "2009"} ["Sun, 06 Sep 2009 16:20:00 +0000"]])))
+    (is (= (helpers/find-all testing-data {:attribute :not-existing})
+           '())))
+  (testing "Find all keyword equality"
+    (is (= (helpers/find-all testing-data {:attribute [:isPermaLink "false"]})
+           '([:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aaaa-111111111111"]])))
+    (is (= (helpers/find-all testing-data {:attribute [:isPermaLink "true"]})
+           '([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-bbbb-222222222222"]])))
+    (is (= (helpers/find-all testing-data {:attribute [:year "2013"]})
+           '([:pubDate {:year "2013"} ["Sun, 06 Sep 2013 16:20:00 +0000"]])))
+    (is (= (helpers/find-all testing-data {:attribute [:year "2009"]})
+           '([:pubDate {:year "2009"} ["Sun, 06 Sep 2009 16:20:00 +0000"]])))
+    (is (= (helpers/find-all testing-data {:attribute [:year "2010"]})
+           '()))
+    (is (= (helpers/find-all testing-data {:attribute [:not-existing true]})
+           '()))
+    (is (= (helpers/find-all testing-data {:attribute [:shouldfail]})
+           '())))
+  )
