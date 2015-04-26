@@ -2,18 +2,6 @@
   (:require [tubax.helpers :as helpers]
             [cljs.test :as test :refer-macros [deftest is testing]]))
 
-
-(deftest helpers-access
-  (testing "Helpers access"
-    (let [node [:item {:att1 "att"} ["value"]]]
-      (is (= (helpers/get-tag node) :item))
-      (is (= (helpers/get-attributes node) {:att1 "att"}))
-      (is (= (helpers/get-children node) ["value"]))
-      (is (= (helpers/get-text node) "value"))))
-  (testing "Unexpected values"
-    (is (= (helpers/get-text [:item {} [[:itemb {} ["value"]]]]) nil))))
-
-
 (def testing-data
   [:rss {:version "2.0"}
    [[:channel {}
@@ -37,6 +25,20 @@
         [:pubDate {:year "2009"} ["Sun, 06 Sep 2009 16:20:00 +0000"]]
         [:author {} "John McCarthy"]]]]]]])
 
+(deftest helpers-access
+  (testing "Helpers access"
+    (let [node [:item {:att1 "att"} ["value"]]]
+      (is (= (helpers/get-tag node) :item))
+      (is (= (helpers/get-attributes node) {:att1 "att"}))
+      (is (= (helpers/get-children node) ["value"]))
+      (is (= (helpers/get-text node) "value"))))
+  (testing "Unexpected values"
+    (is (= (helpers/get-text [:item {} [[:itemb {} ["value"]]]]) nil)))
+  (testing "Check if node"
+    (is (= (helpers/is-node [:item {} []]) true))
+    (is (= (helpers/is-node "test") false))
+    (is (= (helpers/is-node [:item []]) false))
+    (is (= (helpers/is-node ["test" {} []]) false))))
 
 (deftest find-first
   (testing "Find first tag"
@@ -80,4 +82,7 @@
     (is (= (helpers/find-first testing-data {:attribute [:year "2010"]})
            nil))
     (is (= (helpers/find-first testing-data {:attribute [:not-existing true]})
-           nil))))
+           nil))
+    (is (= (helpers/find-first testing-data {:attribute [:shouldfail]})
+           nil))
+    ))

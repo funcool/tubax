@@ -1,6 +1,15 @@
 (ns tubax.helpers)
 
 ;; Datastructure access
+(defn is-node
+  "Checks if the parameter matchs the tubax node contract"
+  [node]
+  (and (vector? node)
+       (= (count node) 3)
+       (keyword? (first node))
+       (map? (second node))
+       (vector? (nth node 2))))
+
 (defn get-tag [[tag _ _]] tag)
 (defn get-attributes [[_ attributes _]] attributes)
 (defn get-children [[_ _ children]] children)
@@ -9,21 +18,14 @@
   (let [[value & _] (get-children node)]
     (if (string? value) value nil)))
 
-;; Find first
-; (find-first result {:tag :item})
-; (find-first result {:path [:rss :channel :description]})
-; (find-first result {:attribute :isPermaLink})
-; (find-first result {:attribute [:isPermaLink true]})
+(defn seq-tree [tree]
+  (tree-seq is-node get-children tree))
 
-(defn search-first [search-fn node]
-  (cond
-    (string? node) nil
-    (search-fn node) node
-    :else
-    (if (empty? (get-children node))
-      nil
-      (some identity (map (partial search-first search-fn)
-                          (get-children node))))))
+(defn filter-tree [search-fn tree]
+  (->> tree seq-tree (filter search-fn)))
+
+(defn first-tree [search-fn tree]
+  (->> tree (filter-tree search-fn) first))
 
 (defn find-first-by-path [path-left node]
   (cond
@@ -36,33 +38,35 @@
       (recur (rest path-left)
              subtree))))
 
-(defn find-first [tree {:keys [tag path attribute]}]
-  (cond
-    ;; Searching for tag
-    tag
-    (search-first #(= (get-tag %) tag) tree)
+;; Dispatcher function for both 'find-first' an 'find-all'
+(defn- find-multi-dispatcher [_ param]
+  (let [key (-> param keys first)]
+    (cond
+      (and (= key :attribute)
+           (keyword? (get param key)))
+      [:attribute :keyword]
+      (and (= key :attribute)
+           (vector? (get param key)))
+      [:attribute :vector]
+      :else key
+      )))
 
-    ;; Searching for path
-    (and path
-         (not (empty? path))
-         (= (first path) (first tree)))
+;; Find first
+(defmulti find-first find-multi-dispatcher)
+
+(defmethod find-first :tag [tree {:keys [tag]}]
+  (first-tree #(= (get-tag %) tag) tree))
+
+(defmethod find-first :path [tree {:keys [path]}]
+  (if (and (not (empty? path)) (= (first path) (first tree)))
     (find-first-by-path (rest path) tree)
+    nil))
 
-    ;; Searching for attribute existence
-    (keyword? attribute)
-    (search-first #(contains? (get-attributes %) attribute) tree)
+(defmethod find-first [:attribute :keyword] [tree {:keys [attribute]}]
+  (first-tree #(contains? (get-attributes %) attribute) tree))
 
-    ;; Searching for attribute equality
-    (and (vector? attribute) (= (count attribute) 2))
-    (search-first #(and (contains? (get-attributes %) (first attribute))
-                        (= (get (get-attributes %) (first attribute)) (second attribute))) tree)
+(defmethod find-first [:attribute :vector] [tree {:keys [attribute]}]
+  (let [[key value] attribute]
+    (first-tree #(and (contains? (get-attributes %) key)
+                      (= (get (get-attributes %) key) value)) tree)))
 
-    ;; Not valid
-    :else nil))
-
-
-;; Find all
-; (find-all result {:tag :link})
-; (find-all result {:path [:rss :channel :item :title]})
-; (find-all result {:attribute :isPermaLink})
-; (find-all result {:attribute [:isPermaLink "true"]})
