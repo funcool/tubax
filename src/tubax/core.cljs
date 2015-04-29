@@ -3,24 +3,58 @@
             [clojure.zip :as zip]
             [clojure.string :as str]))
 
+; (defn- new-document []
+;   (zip/vector-zip []))
+;
+; (defn- add-node-document [node document]
+;   (let [keytag (keyword (.-name node))
+;         att-map (js->clj (.-attributes node) :keywordize-keys true)
+;         node-value [keytag att-map nil]]
+;     (-> document
+;         (zip/append-child (vector keytag att-map []))
+;         zip/down
+;         zip/rightmost
+;         zip/down
+;         zip/rightmost)))
+;
+; (defn- close-node-document [node document]
+;   (-> document zip/up zip/up))
+;
+; (defn- add-text [text document]
+;   (if (not (empty? text))
+;     (zip/append-child document text)
+;     document))
+;
+; (defn- format-document [document]
+;   (first (zip/root document)))
+
+(defn- new-document []
+  (list))
+
 (defn- add-node-document [node document]
   (let [keytag (keyword (.-name node))
         att-map (js->clj (.-attributes node) :keywordize-keys true)
-        node-value [keytag att-map nil]]
-    (-> document
-        (zip/append-child (vector keytag att-map []))
-        zip/down
-        zip/rightmost
-        zip/down
-        zip/rightmost)))
+        node-value [keytag att-map []]]
+    (-> document (conj node-value))))
 
 (defn- close-node-document [node document]
-  (-> document zip/up zip/up))
+  (if (not (empty? (rest document)))
+    (let [current-node    (first document)
+          father-node     (first (rest document))
+          father-children (nth father-node 2)
+          new-father (assoc father-node 2 (conj father-children current-node))]
+      (conj (rest (rest document)) new-father))
+    document))
 
 (defn- add-text [text document]
   (if (not (empty? text))
-    (zip/append-child document text)
+    (let [current-node (first document)
+          new-node-value (assoc current-node 2 (conj (nth current-node 2) text))]
+      (conj (rest document) new-node-value))
     document))
+
+(defn- format-document [document]
+  (first document))
 
 (defn xml->clj [source & {:keys [strict trim normalize
                                 lowercase xmlns position
@@ -37,7 +71,7 @@
                                            "xmlns" xmlns
                                            "position" position
                                            "strictEntities" strict-entities})
-        document (atom (zip/vector-zip []))
+        document (atom (new-document))
         result (atom nil)]
     ;; OPEN TAG
     (set! (.-onopentag parser)
@@ -54,7 +88,7 @@
     ;; END PARSING
     (set! (.-onend parser)
           #(when (nil? @result)
-            (reset! result {:success (first (zip/root @document))})))
+            (reset! result {:success (format-document @document)})))
 
     ;; ERROR
     (set! (.-onerror parser)
