@@ -32,6 +32,8 @@ For example, the following XML will loss information when transformed into JSON.
 </root>
 ----
 
+Another main objective of *tubax* is to be fully compatible with the `clojure.xml` format so we can access the functionality currently in the Clojure API like zippers.
+
 == Install
 
 WARNING: Not on clojars yet. I'll update the information when it's available
@@ -104,7 +106,7 @@ WARNING: Some "loosy" formats could cause unexpected behaviour so it's not recom
 
 (core/xml->clj xml-data :strict false)
 
-;; => [:a {} [:b {} []]]
+;; => {:tag :a :attributes {} :content {:tag :b :attributes {} :content []}}
 
 (core/xml->clj xml-data :strict true)
 
@@ -123,11 +125,11 @@ This option will make the parsing to remove all the leading and trailing whitesp
 
 (core/xml->clj xml-data :trim false)
 
-;; => [:a {} ["  test  "]]
+;; => {:tag :a :attributes {} :content ["  test  "]}
 
 (core/xml->clj xml-data :trim true)
 
-;; => [:a {} ["test"]]
+;; => {:tag :a :attributes {} :content ["test"]}
 ----
 
 ==== Normalize whitespaces
@@ -142,11 +144,11 @@ Replace all whitespaces-characters (like tabs, end of lines, etc..) for whitespa
 
 (core/xml->clj xml-data :normalize false)
 
-;; => [:a {} ["normalize\ntest"]]
+;; => {:tag :a :attributes {} :content ["normalize\ntest"]}
 
 (core/xml->clj xml-data :normalize true)
 
-;; => [:a {} ["normalize test"]]
+;; => {:tag :a :attributes {} :content ["normalize test"]}
 ----
 
 ==== Lowercase (non-strict mode only)
@@ -161,11 +163,11 @@ When on non-strict mode, all tags and attributes can be made upper-case just by 
 
 (core/xml->clj xml-data :strict false :lowercase true)
 
-;; => [:root {:att1 "t1"} ["test"]]
+;; => {:tag :root :attributes {:att1 "t1"} :content ["test"]}
 
 (core/xml->clj xml-data :strict false :lowercase false)
 
-;; => [:ROOT {:ATT1 "t1"} ["test"]]
+;; => {:tag :ROOT :attributes {:ATT1 "t1"} :content ["test"]}
 ----
 
 ==== Support for XML namespaces
@@ -182,11 +184,11 @@ When the option _xmlns_ is activated there will be more information regarding th
 
 (core/xml->clj xml-data :xmlns false)
 
-;; => [:element {:xmlns "http://foo"} ["value"]]
+;; => {:tag :element :attributes {:xmlns "http://foo"} :content ["value"]}
 
 (core/xml->clj xml-data :xmlns true)
 
-;; => [:element {:xmlns {:name "xmlns" :value "http://foo" :prefix "xmlns" :local "" :uri "http://www.w3.org/2000/xmlns/"}} ["value"]]
+;; => {:tag :element :attributes {:xmlns {:name "xmlns" :value "http://foo" :prefix "xmlns" :local "" :uri "http://www.w3.org/2000/xmlns/"}} :content ["value"]}
 ----
 
 ==== Strict entities
@@ -201,7 +203,7 @@ When activated, it makes the parser to fail when it founds http://www.w3.org/TR/
 
 (core/xml->clj xml-data :strict-entities false)
 
-;; => [:element {} ["á"]]
+;; => {:tag :element :attributes {} :content ["á"]}
 
 (core/xml->clj xml-data :strict-entities true)
 
@@ -228,28 +230,28 @@ For simplicity the following examples suppose:
 
 [source,clojure]
 ----
-(th/get-tag [:item {} ["Text"]])
+(th/get-tag {:tag :item :attribute {} :content ["Text"]})
 ;; => :item
 ----
 
 [source,clojure]
 ----
-(th/get-attributes [:item {} ["Text"]])
+(th/get-attributes {:tag :item :attribute {} :content ["Text"]})
 ;; => {}
 ----
 
 [source,clojure]
 ----
-(th/get-children [:item {} ["Text"]])
+(th/get-children {:tag :item :attribute {} :content ["Text"]})
 ;; => ["Text"]
 ----
 
 [source,clojure]
 ----
-(th/get-text [:tag {} ["Text"]])
+(th/get-text {:tag :item :attribute {} :content ["Text"]})
 ;; => Text
 
-(th/get-text [:tag {} [[:item {} [...]]]])
+(th/get-text {:tag :item {} :content [{:tag :item :attributes {} :content [...]}]})
 ;; => nil
 ----
 
@@ -261,14 +263,14 @@ These methods retrieve the first node that match the query passed as argument.
 ----
 (th/find-first result {:tag :item})
 
-;; => [:item {} [[:title {} ["Hello world"]]]]
+;; => {:tag :item :attributes {} :content [{:content :title :attributes {} :content ["Hello world"]}]}
 ----
 
 [source,clojure]
 ----
 (th/find-first result {:path [:rss :channel :description]})
 
-;; => [:description {} ["This is an example of an RSS feed"]]
+;; => {:tag :description :attributes {} :content ["This is an example of an RSS feed"]}
 ----
 
 Search for the first element that have the attribute defined
@@ -277,7 +279,7 @@ Search for the first element that have the attribute defined
 ----
 (th/find-first result {:attribute :isPermaLink})
 
-;; => [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+;; => {:tag :guid :attributes {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
 ----
 
 Search for the first element that have an attribute with the specified value
@@ -286,7 +288,7 @@ Search for the first element that have an attribute with the specified value
 ----
 (th/find-first result {:attribute [:isPermaLink true]})
 
-;; => [:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]]
+;; => {:tag :guid :attributes {:isPermaLink "true"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
 ----
 
 ==== Find all nodes
@@ -297,28 +299,31 @@ These methods retrieve a lazy sequence with the elements which match the query u
 ----
 (th/find-all result {:tag :link})
 
-;; => ([:link {} ["http://www.example.com/main.html"]] [:link {} ["http://www.example.com/blog/post/1"]])
+;; => ({:tag :link :attributes {} :content ["http://www.example.com/main.html"]}
+;;     {:tag :link :attributes {} :content ["http://www.example.com/blog/post/1"]})
 ----
 
 [source,clojure]
 ----
 (th/find-all result {:path [:rss :channel :item :title]})
 
-;; => ([:title {} ["Example entry"]] [:title {} ["Example entry2"]])
+;; => ({:tag :title :attributes {} :content ["Example entry"]}
+;;     {:tag :title :attributes {} :content ["Example entry2"]})
 ----
 
 [source,clojure]
 ----
 (th/find-all result {:attribute :isPermaLink})
 
-;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]] [:guid {:isPermaLink "false"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
+;; => ({:tag :guid :attributes {:isPermaLink "true"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
+;;     {:tag :guid :attributes {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]})
 ----
 
 [source,clojure]
 ----
 (th/find-all result {:attribute [:isPermaLink "true"]})
 
-;; => ([:guid {:isPermaLink "true"} ["7bd204c6-1655-4c27-aeee-53f933c5395f"]])
+;; => ({:tag :guid :attributes {:isPermaLink "true"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]})
 ----
 
 == Contribute

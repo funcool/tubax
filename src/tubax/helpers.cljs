@@ -4,15 +4,17 @@
 (defn is-node
   "Checks if the parameter matchs the tubax node contract"
   [node]
-  (and (vector? node)
-       (= (count node) 3)
-       (keyword? (first node))
-       (map? (second node))
-       (vector? (nth node 2))))
+  (and (map? node)
+       (contains? node :tag)
+       (keyword? (:tag node))
+       (contains? node :attributes)
+       (map? (:attributes node))
+       (contains? node :content)
+       (vector? (:content node))))
 
-(defn get-tag [[tag _ _]] tag)
-(defn get-attributes [[_ attributes _]] attributes)
-(defn get-children [[_ _ children]] children)
+(defn get-tag [{:keys [tag]}] tag)
+(defn get-attributes [{:keys [attributes]}] attributes)
+(defn get-children [{:keys [content]}] content)
 
 (defn get-text [node]
   (let [[value & _] (get-children node)]
@@ -45,7 +47,8 @@
     (and (= (count path) 1)) '()
     :else
     (if (= (get-tag node) (first path))
-      (apply concat (map (partial find-all-by-path (rest path)) (get-children node)))
+      (apply concat (map (partial find-all-by-path (rest path))
+                         (get-children node)))
       '())))
 
 ;; Dispatcher function for both 'find-first' an 'find-all'
@@ -76,7 +79,7 @@
                       (= (get (get-attributes %) key) value)) tree)))
 
 (defmethod find-first :path [tree {:keys [path]}]
-  (if (and (not (empty? path)) (= (first path) (first tree)))
+  (if (and (not (empty? path)) (= (first path) (get-tag tree)))
     (find-first-by-path (rest path) tree)
     nil))
 

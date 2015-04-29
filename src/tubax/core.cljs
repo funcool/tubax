@@ -1,32 +1,5 @@
 (ns tubax.core
-  (:require [ext.saxjs :as sax]
-            [clojure.zip :as zip]
-            [clojure.string :as str]))
-
-; (defn- new-document []
-;   (zip/vector-zip []))
-;
-; (defn- add-node-document [node document]
-;   (let [keytag (keyword (.-name node))
-;         att-map (js->clj (.-attributes node) :keywordize-keys true)
-;         node-value [keytag att-map nil]]
-;     (-> document
-;         (zip/append-child (vector keytag att-map []))
-;         zip/down
-;         zip/rightmost
-;         zip/down
-;         zip/rightmost)))
-;
-; (defn- close-node-document [node document]
-;   (-> document zip/up zip/up))
-;
-; (defn- add-text [text document]
-;   (if (not (empty? text))
-;     (zip/append-child document text)
-;     document))
-;
-; (defn- format-document [document]
-;   (first (zip/root document)))
+  (:require [ext.saxjs :as sax]))
 
 (defn- new-document []
   (list))
@@ -34,22 +7,23 @@
 (defn- add-node-document [node document]
   (let [keytag (keyword (.-name node))
         att-map (js->clj (.-attributes node) :keywordize-keys true)
-        node-value [keytag att-map []]]
+        node-value {:tag keytag :attributes att-map :content []}]
     (-> document (conj node-value))))
 
 (defn- close-node-document [node document]
   (if (not (empty? (rest document)))
     (let [current-node    (first document)
           father-node     (first (rest document))
-          father-children (nth father-node 2)
-          new-father (assoc father-node 2 (conj father-children current-node))]
+          father-children (:content father-node)
+          new-father (assoc father-node :content (conj father-children current-node))]
       (conj (rest (rest document)) new-father))
     document))
 
 (defn- add-text [text document]
   (if (not (empty? text))
     (let [current-node (first document)
-          new-node-value (assoc current-node 2 (conj (nth current-node 2) text))]
+          node-children (:content current-node)
+          new-node-value (assoc current-node :content (conj node-children text))]
       (conj (rest document) new-node-value))
     document))
 
