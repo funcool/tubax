@@ -663,11 +663,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;a&gt;&lt;b&gt;&lt;/a&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :a :attributes {} :content {:tag :b :attributes {} :content []}}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; js/Error #Parse error</span></code></pre>
 </div>
@@ -685,11 +685,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;a&gt;  test  &lt;/a&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:trim</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:trim</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :a :attributes {} :content [&quot;  test  &quot;]}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:trim</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:trim</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; {:tag :a :attributes {} :content [&quot;test&quot;]}</span></code></pre>
 </div>
@@ -707,11 +707,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;a&gt;normalize</span><span class="content">\n</span><span class="content">test&lt;/a&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:normalize</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:normalize</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :a :attributes {} :content [&quot;normalize\ntest&quot;]}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:normalize</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:normalize</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; {:tag :a :attributes {} :content [&quot;normalize test&quot;]}</span></code></pre>
 </div>
@@ -729,11 +729,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;root att1='t1'&gt;test&lt;/root&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict</span> <span class="predefined-constant">false</span> <span class="symbol">:lowercase</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict</span> <span class="predefined-constant">false</span> <span class="symbol">:lowercase</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; {:tag :root :attributes {:att1 &quot;t1&quot;} :content [&quot;test&quot;]}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict</span> <span class="predefined-constant">false</span> <span class="symbol">:lowercase</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict</span> <span class="predefined-constant">false</span> <span class="symbol">:lowercase</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :ROOT :attributes {:ATT1 &quot;t1&quot;} :content [&quot;test&quot;]}</span></code></pre>
 </div>
@@ -754,11 +754,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;element xmlns='http://foo'&gt;value&lt;/element&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:xmlns</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:xmlns</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :element :attributes {:xmlns &quot;http://foo&quot;} :content [&quot;value&quot;]}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:xmlns</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:xmlns</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; {:tag :element :attributes {:xmlns {:name &quot;xmlns&quot; :value &quot;http://foo&quot; :prefix &quot;xmlns&quot; :local &quot;&quot; :uri &quot;http://www.w3.org/2000/xmlns/&quot;}} :content [&quot;value&quot;]}</span></code></pre>
 </div>
@@ -776,11 +776,11 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="clojure">(<span class="keyword">def</span> <span class="function">xml-data</span> <span class="string"><span class="delimiter">&quot;</span><span class="content">&lt;element&gt;&amp;aacute;&lt;/element&gt;</span><span class="delimiter">&quot;</span></span>)
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict-entities</span> <span class="predefined-constant">false</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict-entities</span> <span class="predefined-constant">false</span>})
 
 <span class="comment">;; =&gt; {:tag :element :attributes {} :content [&quot;á&quot;]}</span>
 
-(core/xml-&gt;clj xml-data <span class="symbol">:strict-entities</span> <span class="predefined-constant">true</span>)
+(core/xml-&gt;clj xml-data {<span class="symbol">:strict-entities</span> <span class="predefined-constant">true</span>})
 
 <span class="comment">;; =&gt; js/Error #Parser error</span></code></pre>
 </div>
@@ -808,28 +808,28 @@ Some "loosy" formats could cause unexpected behaviour so it&#8217;s not recommen
 <h4 id="_access_data_structure"><a class="link" href="#_access_data_structure">4.3.1. Access data-structure</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="clojure">(th/get-tag {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
+<pre class="CodeRay highlight"><code data-lang="clojure">(th/tag {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
 <span class="comment">;; =&gt; :item</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="clojure">(th/get-attributes {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
+<pre class="CodeRay highlight"><code data-lang="clojure">(th/attributes {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
 <span class="comment">;; =&gt; {}</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="clojure">(th/get-children {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
+<pre class="CodeRay highlight"><code data-lang="clojure">(th/children {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
 <span class="comment">;; =&gt; [&quot;Text&quot;]</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="clojure">(th/get-text {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
+<pre class="CodeRay highlight"><code data-lang="clojure">(th/text {<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attribute</span> {} <span class="symbol">:content</span> [<span class="string"><span class="delimiter">&quot;</span><span class="content">Text</span><span class="delimiter">&quot;</span></span>]})
 <span class="comment">;; =&gt; Text</span>
 
-(th/get-text {<span class="symbol">:tag</span> <span class="symbol">:item</span> {} <span class="symbol">:content</span> [{<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attributes</span> {} <span class="symbol">:content</span> [<span class="keyword">..</span><span class="keyword">.</span>]}]})
+(th/text {<span class="symbol">:tag</span> <span class="symbol">:item</span> {} <span class="symbol">:content</span> [{<span class="symbol">:tag</span> <span class="symbol">:item</span> <span class="symbol">:attributes</span> {} <span class="symbol">:content</span> [<span class="keyword">..</span><span class="keyword">.</span>]}]})
 <span class="comment">;; =&gt; nil</span></code></pre>
 </div>
 </div>
