@@ -185,7 +185,7 @@
   (testing "Option 1 - Strict mode"
     (let [xml "<element><a><b></b></a>"]
       (is (thrown? js/Error (= (core/xml->clj xml :strict true))))
-      (is (= (core/xml->clj xml :strict false) {:tag :element
+      (is (= (core/xml->clj xml {:strict false}) {:tag :element
                                                 :attributes {}
                                                 :content
                                                 [{:tag :a
@@ -196,23 +196,23 @@
 (deftest parser-options-trim
   (testing "Option 2 - Trim"
     (let [xml "<element>  test  </element>"]
-      (is (= (core/xml->clj xml :trim false) {:tag :element :attributes {} :content ["  test  "]}))
-      (is (= (core/xml->clj xml :trim true) {:tag :element :attributes {} :content ["test"]}))
+      (is (= (core/xml->clj xml {:trim false}) {:tag :element :attributes {} :content ["  test  "]}))
+      (is (= (core/xml->clj xml {:trim true}) {:tag :element :attributes {} :content ["test"]}))
       (is (= (core/xml->clj xml) {:tag :element :attributes {} :content ["test"]})))))
 
 (deftest parser-options-normalize
   (testing "Option 3 - Normalize"
     (let [xml "<element>testing\nnormalize</element>"]
-      (is (= (core/xml->clj xml :normalize false) {:tag :element :attributes {} :content ["testing\nnormalize"]}))
-      (is (= (core/xml->clj xml :normalize true) {:tag :element :attributes {} :content ["testing normalize"]}))
+      (is (= (core/xml->clj xml {:normalize false}) {:tag :element :attributes {} :content ["testing\nnormalize"]}))
+      (is (= (core/xml->clj xml {:normalize true}) {:tag :element :attributes {} :content ["testing normalize"]}))
       (is (= (core/xml->clj xml) {:tag :element :attributes {} :content ["testing\nnormalize"]})))))
 
 (deftest parser-options-lowercase
   (testing "Option 4 - Lowercase"
     (let [xml "<element att1='att'>test</element>"]
-      (is (= (core/xml->clj xml :strict false :lowercase false) {:tag :ELEMENT :attributes {:ATT1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml :strict false :lowercase true) {:tag :element :attributes {:att1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml :strict false) {:tag :element :attributes {:att1 "att"} :content ["test"]})))))
+      (is (= (core/xml->clj xml {:strict false :lowercase false}) {:tag :ELEMENT :attributes {:ATT1 "att"} :content ["test"]}))
+      (is (= (core/xml->clj xml {:strict false :lowercase true}) {:tag :element :attributes {:att1 "att"} :content ["test"]}))
+      (is (= (core/xml->clj xml {:strict false}) {:tag :element :attributes {:att1 "att"} :content ["test"]})))))
 
 (deftest parser-options-xmlns
   (testing "Option 5 - XMLNS"
@@ -220,13 +220,13 @@
                   <t:test>a</t:test>
                   <test>b</test>
                </element>"]
-      (is (= (core/xml->clj xml :xmlns false)
+      (is (= (core/xml->clj xml {:xmlns false})
              {:tag :element :attributes {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
               :content
               [{:tag :t:test :attributes {} :content ["a"]}
                {:tag :test :attributes {} :content ["b"]}]}))
 
-      (is (= (core/xml->clj xml :xmlns true)
+      (is (= (core/xml->clj xml {:xmlns true})
              {:tag :element
               :attributes
               {:xmlns   {:name "xmlns"
@@ -258,6 +258,6 @@
 (deftest parser-options-strict-entities
   (testing "Option 6 - Strict Entities"
     (let [xml "<element att1='&amp;&lt;&aacute;'>&amp;&lt;&aacute;</element>"]
-      (is (= (core/xml->clj xml :strict-entities false) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]}))
-      (is (thrown? js/Error (= (core/xml->clj xml :strict-entities true))))
+      (is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]}))
+      (is (thrown? js/Error (= (core/xml->clj xml {:strict-entities true}))))
       (is (= (core/xml->clj xml) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]})))))

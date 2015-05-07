@@ -32,12 +32,12 @@
 (deftest helpers-access
   (testing "Helpers access"
     (let [node {:tag :item :attributes {:att1 "att"} :content ["value"]}]
-      (is (= (helpers/get-tag node) :item))
-      (is (= (helpers/get-attributes node) {:att1 "att"}))
-      (is (= (helpers/get-children node) ["value"]))
-      (is (= (helpers/get-text node) "value"))))
+      (is (= (helpers/tag node) :item))
+      (is (= (helpers/attributes node) {:att1 "att"}))
+      (is (= (helpers/children node) ["value"]))
+      (is (= (helpers/text node) "value"))))
   (testing "Unexpected values"
-    (is (= (helpers/get-text {:tag :item :attributes {} :content [{:tag :itemb :attributes {} :content ["value"]}]}) nil)))
+    (is (= (helpers/text {:tag :item :attributes {} :content [{:tag :itemb :attributes {} :content ["value"]}]}) nil)))
   (testing "Check if node"
     (is (= (helpers/is-node {:tag :item :attributes {} :content []}) true))
     (is (= (helpers/is-node "test") false))

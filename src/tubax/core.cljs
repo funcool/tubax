@@ -30,46 +30,48 @@
 (defn- format-document [document]
   (first document))
 
-(defn xml->clj [source & {:keys [strict trim normalize
-                                lowercase xmlns position
-                                strict-entities]
-                          :or {strict true
-                               trim true
-                               normalize false
-                               lowercase true
-                               position true
-                               strict-entities false}}]
-  (let [parser (.parser js/sax strict #js {"trim" trim
-                                           "normalize" normalize
-                                           "lowercase" lowercase
-                                           "xmlns" xmlns
-                                           "position" position
-                                           "strictEntities" strict-entities})
-        document (atom (new-document))
-        result (atom nil)]
-    ;; OPEN TAG
-    (set! (.-onopentag parser)
-          #(swap! document (partial add-node-document %)))
+(defn xml->clj
+  ([source] (xml->clj source {}))
+  ([source {:keys [strict trim normalize
+                   lowercase xmlns position
+                   strict-entities]
+            :or {strict true
+                 trim true
+                 normalize false
+                 lowercase true
+                 position true
+                 strict-entities false}}]
+   (let [parser (.parser js/sax strict #js {"trim" trim
+                                            "normalize" normalize
+                                            "lowercase" lowercase
+                                            "xmlns" xmlns
+                                            "position" position
+                                            "strictEntities" strict-entities})
+         document (atom (new-document))
+         result (atom nil)]
+     ;; OPEN TAG
+     (set! (.-onopentag parser)
+           #(swap! document (partial add-node-document %)))
 
-    ;; CLOSE TAG
-    (set! (.-onclosetag parser)
-          #(swap! document (partial close-node-document %)))
+     ;; CLOSE TAG
+     (set! (.-onclosetag parser)
+           #(swap! document (partial close-node-document %)))
 
-    ;; GET TEXT
-    (set! (.-ontext parser)
-          #(swap! document (partial add-text %)))
+     ;; GET TEXT
+     (set! (.-ontext parser)
+           #(swap! document (partial add-text %)))
 
-    ;; END PARSING
-    (set! (.-onend parser)
-          #(when (nil? @result)
-            (reset! result {:success (format-document @document)})))
+     ;; END PARSING
+     (set! (.-onend parser)
+           #(when (nil? @result)
+              (reset! result {:success (format-document @document)})))
 
-    ;; ERROR
-    (set! (.-onerror parser)
-          #(reset! result {:error (str %)}))
+     ;; ERROR
+     (set! (.-onerror parser)
+           #(reset! result {:error (str %)}))
 
-    (.write parser source)
-    (.close parser)
+     (.write parser source)
+     (.close parser)
 
-    (or (:success @result)
-        (throw (js/Error. (:error @result))))))
+     (or (:success @result)
+         (throw (js/Error. (:error @result)))))))

@@ -104,11 +104,11 @@ WARNING: Some "loosy" formats could cause unexpected behaviour so it's not recom
 ----
 (def xml-data "<a><b></a>")
 
-(core/xml->clj xml-data :strict false)
+(core/xml->clj xml-data {:strict false})
 
 ;; => {:tag :a :attributes {} :content {:tag :b :attributes {} :content []}}
 
-(core/xml->clj xml-data :strict true)
+(core/xml->clj xml-data {:strict true})
 
 ;; => js/Error #Parse error
 ----
@@ -123,11 +123,11 @@ This option will make the parsing to remove all the leading and trailing whitesp
 ----
 (def xml-data "<a>  test  </a>")
 
-(core/xml->clj xml-data :trim false)
+(core/xml->clj xml-data {:trim false})
 
 ;; => {:tag :a :attributes {} :content ["  test  "]}
 
-(core/xml->clj xml-data :trim true)
+(core/xml->clj xml-data {:trim true})
 
 ;; => {:tag :a :attributes {} :content ["test"]}
 ----
@@ -142,11 +142,11 @@ Replace all whitespaces-characters (like tabs, end of lines, etc..) for whitespa
 ----
 (def xml-data "<a>normalize\ntest</a>")
 
-(core/xml->clj xml-data :normalize false)
+(core/xml->clj xml-data {:normalize false})
 
 ;; => {:tag :a :attributes {} :content ["normalize\ntest"]}
 
-(core/xml->clj xml-data :normalize true)
+(core/xml->clj xml-data {:normalize true})
 
 ;; => {:tag :a :attributes {} :content ["normalize test"]}
 ----
@@ -161,11 +161,11 @@ When on non-strict mode, all tags and attributes can be made upper-case just by 
 ----
 (def xml-data "<root att1='t1'>test</root>")
 
-(core/xml->clj xml-data :strict false :lowercase true)
+(core/xml->clj xml-data {:strict false :lowercase true})
 
 ;; => {:tag :root :attributes {:att1 "t1"} :content ["test"]}
 
-(core/xml->clj xml-data :strict false :lowercase false)
+(core/xml->clj xml-data {:strict false :lowercase false})
 
 ;; => {:tag :ROOT :attributes {:ATT1 "t1"} :content ["test"]}
 ----
@@ -182,11 +182,11 @@ When the option _xmlns_ is activated there will be more information regarding th
 ----
 (def xml-data "<element xmlns='http://foo'>value</element>")
 
-(core/xml->clj xml-data :xmlns false)
+(core/xml->clj xml-data {:xmlns false})
 
 ;; => {:tag :element :attributes {:xmlns "http://foo"} :content ["value"]}
 
-(core/xml->clj xml-data :xmlns true)
+(core/xml->clj xml-data {:xmlns true})
 
 ;; => {:tag :element :attributes {:xmlns {:name "xmlns" :value "http://foo" :prefix "xmlns" :local "" :uri "http://www.w3.org/2000/xmlns/"}} :content ["value"]}
 ----
@@ -201,11 +201,11 @@ When activated, it makes the parser to fail when it founds http://www.w3.org/TR/
 ----
 (def xml-data "<element>&aacute;</element>")
 
-(core/xml->clj xml-data :strict-entities false)
+(core/xml->clj xml-data {:strict-entities false})
 
 ;; => {:tag :element :attributes {} :content ["á"]}
 
-(core/xml->clj xml-data :strict-entities true)
+(core/xml->clj xml-data {:strict-entities true})
 
 ;; => js/Error #Parser error
 ----
@@ -230,28 +230,28 @@ For simplicity the following examples suppose:
 
 [source,clojure]
 ----
-(th/get-tag {:tag :item :attribute {} :content ["Text"]})
+(th/tag {:tag :item :attribute {} :content ["Text"]})
 ;; => :item
 ----
 
 [source,clojure]
 ----
-(th/get-attributes {:tag :item :attribute {} :content ["Text"]})
+(th/attributes {:tag :item :attribute {} :content ["Text"]})
 ;; => {}
 ----
 
 [source,clojure]
 ----
-(th/get-children {:tag :item :attribute {} :content ["Text"]})
+(th/children {:tag :item :attribute {} :content ["Text"]})
 ;; => ["Text"]
 ----
 
 [source,clojure]
 ----
-(th/get-text {:tag :item :attribute {} :content ["Text"]})
+(th/text {:tag :item :attribute {} :content ["Text"]})
 ;; => Text
 
-(th/get-text {:tag :item {} :content [{:tag :item :attributes {} :content [...]}]})
+(th/text {:tag :item {} :content [{:tag :item :attributes {} :content [...]}]})
 ;; => nil
 ----
 
