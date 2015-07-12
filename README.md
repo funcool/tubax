@@ -15,6 +15,8 @@ Also we're aiming to be fully compatible with the clojure.xml format so we can u
 
 ## Usage
 
+[![Clojars Project](http://clojars.org/funcool/tubax/latest-version.svg)](http://clojars.org/funcool/tubax)
+
 *Tubax* uses behind the scenes [sax-js](https://github.com/isaacs/sax-js) a very lightweight library for for XML parsing based on SAX (simple api for xml).
 
 You can check full documentation here: http://funcool.github.io/tubax

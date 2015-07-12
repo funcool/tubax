@@ -1,4 +1,4 @@
-(defproject tubax "0.1.0-SNAPSHOT"
+(defproject funcool/tubax "0.1.1"
   :description "A ClojureScript library to parse XML files"
   :url "https://github.com/funcool/tubax"
   :license {:name "Apache 2.0"
@@ -15,6 +15,7 @@
 
   :test-paths ["test"]
   :source-paths ["src" "test"]
+  :resource-paths ["assets"]
 
   :cljsbuild {:test-commands {"test" ["node" "output/tests.js"]}
               :builds
