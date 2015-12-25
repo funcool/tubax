@@ -4,13 +4,15 @@
 (defn- new-document []
   (list))
 
-(defn- add-node-document [node document]
+(defn- add-node-document
+  [node document]
   (let [keytag (keyword (.-name node))
         att-map (js->clj (.-attributes node) :keywordize-keys true)
         node-value {:tag keytag :attributes att-map :content []}]
     (-> document (conj node-value))))
 
-(defn- close-node-document [node document]
+(defn- close-node-document
+  [node document]
   (if (not (empty? (rest document)))
     (let [current-node    (first document)
           father-node     (first (rest document))
@@ -19,7 +21,8 @@
       (conj (rest (rest document)) new-father))
     document))
 
-(defn- add-text [text document]
+(defn- add-text
+  [text document]
   (if (not (empty? text))
     (let [current-node (first document)
           node-children (:content current-node)
@@ -27,7 +30,8 @@
       (conj (rest document) new-node-value))
     document))
 
-(defn- format-document [document]
+(defn- format-document
+  [document]
   (first document))
 
 (defn xml->clj
@@ -41,12 +45,12 @@
                  lowercase true
                  position true
                  strict-entities false}}]
-   (let [parser (.parser js/sax strict (clj->js {"trim" trim
-                                                 "normalize" normalize
-                                                 "lowercase" lowercase
-                                                 "xmlns" xmlns
-                                                 "position" position
-                                                 "strictEntities" strict-entities}))
+   (let [parser (.parser js/sax strict #js {"trim" trim
+                                            "normalize" normalize
+                                            "lowercase" lowercase
+                                            "xmlns" xmlns
+                                            "position" position
+                                            "strictEntities" strict-entities})
          document (atom (new-document))
          result (atom nil)]
      ;; OPEN TAG
@@ -74,4 +78,4 @@
      (.close parser)
 
      (or (:success @result)
-         (throw (js/Error. (:error @result)))))))
+         (throw (ex-info (str (:error @result)) {}))))))
