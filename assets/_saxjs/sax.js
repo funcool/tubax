@@ -1427,4 +1427,4 @@ if (!String.fromCodePoint) {
         }());
 }
 
-})(typeof exports === "undefined" ? sax = {} : exports);
+})(sax = {});

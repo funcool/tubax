@@ -1,10 +1,6 @@
 (ns tubax.core-test
   (:require [tubax.core :as core]
-            [cljs-testrunners.node :as node]
-            [cljs.test :as test :refer-macros [deftest is testing]]
-
-            ;; Additional test classes
-            [tubax.helpers-test]))
+            [cljs.test :as test :refer-macros [deftest is testing]]))
 
 ;;; TEST SUCCESS
 (deftest parser-case1
@@ -184,14 +180,15 @@
 (deftest parser-options-strict
   (testing "Option 1 - Strict mode"
     (let [xml "<element><a><b></b></a>"]
-      (is (thrown? js/Error (= (core/xml->clj xml :strict true))))
-      (is (= (core/xml->clj xml {:strict false}) {:tag :element
-                                                :attributes {}
-                                                :content
-                                                [{:tag :a
-                                                  :attributes {}
-                                                  :content
-                                                  [{:tag :b :attributes {} :content []}]}]})))))
+      (is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
+      (is (= (core/xml->clj xml {:strict false})
+             {:tag :element
+              :attributes {}
+              :content
+              [{:tag :a
+                :attributes {}
+                :content
+                [{:tag :b :attributes {} :content []}]}]})))))
 
 (deftest parser-options-trim
   (testing "Option 2 - Trim"
