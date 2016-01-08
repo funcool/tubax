@@ -1,4 +1,4 @@
-(defproject funcool/tubax "0.1.2"
+(defproject funcool/tubax "0.2.0"
   :description "A ClojureScript library to parse XML files"
   :url "https://github.com/funcool/tubax"
   :license {:name "Apache 2.0"

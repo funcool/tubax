@@ -7,6 +7,7 @@
 
 (defn main
   []
+  (println ">> Running tests")
   (test/run-tests
    (test/empty-env)
    'tubax.core-test

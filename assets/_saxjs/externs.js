@@ -85,6 +85,27 @@ sax.SAXParser.prototype.ontext = function() {};
  * @param {sax._Node}
  * @type {function()}
  */
+sax.SAXParser.prototype.onopencdata = function() {};
+
+/**
+ * @this {sax.SAXParser}
+ * @param {sax._Node}
+ * @type {function()}
+ */
+sax.SAXParser.prototype.oncdata = function() {};
+
+/**
+ * @this {sax.SAXParser}
+ * @param {sax._Node}
+ * @type {function()}
+ */
+sax.SAXParser.prototype.onclosecdata = function() {};
+
+/**
+ * @this {sax.SAXParser}
+ * @param {sax._Node}
+ * @type {function()}
+ */
 sax.SAXParser.prototype.onend = function() {};
 
 /**

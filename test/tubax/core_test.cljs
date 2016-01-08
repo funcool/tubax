@@ -258,3 +258,19 @@
       (is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]}))
       (is (thrown? js/Error (= (core/xml->clj xml {:strict-entities true}))))
       (is (= (core/xml->clj xml) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]})))))
+
+;; TEST CDATA
+(deftest parser-cdata
+  (testing "Cdata value simple value"
+    (let [xml "<element><![CDATA[value]]></element>"
+          result (-> xml core/xml->clj)]
+      (is (= result {:tag :element :attributes {} :content ["value"]}))))
+  (testing "Cdata value multiple lines"
+    (let [xml "<element><![CDATA[value\n\n\nvalue]]></element>"
+          result (-> xml core/xml->clj)]
+      (is (= result {:tag :element :attributes {} :content ["value\n\n\nvalue"]}))))
+  (testing "Cdata value with xml inside"
+    (let [xml "<element><![CDATA[<test></test>]]></element>"
+          result (-> xml core/xml->clj)]
+      (is (= result {:tag :element :attributes {} :content ["<test></test>"]})))))
+

@@ -65,6 +65,10 @@
      (set! (.-ontext parser)
            #(swap! document (partial add-text %)))
 
+     ;; CDATA HANDLING
+     (set! (.-oncdata parser)
+           #(swap! document (partial add-text %)))
+
      ;; END PARSING
      (set! (.-onend parser)
            #(when (nil? @result)
