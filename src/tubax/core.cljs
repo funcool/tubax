@@ -1,39 +1,52 @@
 (ns tubax.core
   (:require sax))
 
-(defn- new-document []
-  (list))
+(defn start-document []
+  {:stack []
+   :current nil})
 
-(defn- add-node-document
-  [node document]
-  (let [keytag (keyword (.-name node))
-        att-map (js->clj (.-attributes node) :keywordize-keys true)
-        att-map (when-not (empty? att-map) att-map)
-        node-value {:tag keytag :attrs att-map :content nil}]
-    (-> document (conj node-value))))
+(defn parse-node
+  ([node]
+   (parse-node node nil))
 
-(defn- close-node-document
-  [node document]
-  (if (not (empty? (rest document)))
-    (let [current-node    (first document)
-          father-node     (first (rest document))
-          father-children (:content father-node)
-          new-father (assoc father-node :content ((fnil conj []) father-children current-node))]
-      (conj (rest (rest document)) new-father))
-    document))
+  ([node {:keys [keywordize-keys]
+          :or   {keywordize-keys true}}]
+   (let [tag   (cond-> (.-name node)
+                 keywordize-keys (keyword))
 
-(defn- add-text
-  [text document]
-  (if (not (empty? text))
-    (let [current-node (first document)
-          node-children (:content current-node)
-          new-node-value (assoc current-node :content ((fnil conj []) node-children text))]
-      (conj (rest document) new-node-value))
-    document))
+         attrs (js->clj (.-attributes node) :keywordize-keys keywordize-keys)
+         attrs (when-not (empty? attrs) attrs)]
+     {:tag tag
+      :attrs attrs
+      :content nil})))
 
-(defn- format-document
-  [document]
-  (first document))
+(defn push-node
+  [{:keys [stack current] :as document} node]
+  (let [new-current (parse-node node)
+        new-stack (cond-> stack (some? current) (conj current))]
+    (assoc document
+           :stack new-stack
+           :current new-current)))
+
+(defn pop-node
+  [{:keys [stack current] :as document} node]
+
+  (let [tag (keyword node)]
+    (if (empty? stack)
+      document
+
+      (let [new-stack   (pop stack)
+            new-current (-> (peek stack)
+                            (update :content (fnil conj []) current))]
+        (assoc document
+               :stack new-stack
+               :current new-current)))))
+
+(defn push-text
+  [document text]
+  (cond-> document
+    (not (empty? text))
+    (update-in [:current :content] (fnil conj []) text)))
 
 (defn- create-parser [{:keys [strict trim normalize
                               lowercase xmlns position
@@ -56,29 +69,29 @@
   ([source] (xml->clj source {}))
   ([source options]
    (let [parser (create-parser options)
-         document (atom (new-document))
+         document (atom (start-document))
          result (atom nil)]
 
      ;; OPEN TAG
      (set! (.-onopentag parser)
-           #(swap! document (partial add-node-document %)))
+           #(swap! document push-node %))
 
      ;; CLOSE TAG
      (set! (.-onclosetag parser)
-           #(swap! document (partial close-node-document %)))
+           #(swap! document pop-node %))
 
      ;; GET TEXT
      (set! (.-ontext parser)
-           #(swap! document (partial add-text %)))
+           #(swap! document push-text %))
 
      ;; CDATA HANDLING
      (set! (.-oncdata parser)
-           #(swap! document (partial add-text %)))
+           #(swap! document push-text %))
 
      ;; END PARSING
      (set! (.-onend parser)
-           #(when (nil? @result)
-              (reset! result {:success (format-document @document)})))
+           #(when-not (some? @result)
+              (reset! result {:success (:current @document)})))
 
      ;; ERROR
      (set! (.-onerror parser)

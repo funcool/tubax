@@ -111,7 +111,6 @@
                 :attrs nil
                 :content ["other"]}]})))))
 
-
 (deftest parser-full
   (testing "Full parser"
     (let [xml "<rss version=\"2.0\">
@@ -189,7 +188,23 @@
               [{:tag :a
                 :attrs nil
                 :content
-                [{:tag :b :attrs nil :content nil}]}]})))))
+                [{:tag :b :attrs nil :content nil}]}]})))
+
+    (let [xml "<element><a><b><c></element>"]
+      (is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
+      (is (= (core/xml->clj xml {:strict false})
+             {:tag :element
+              :attrs nil
+              :content
+              [{:tag :a
+                :attrs nil
+                :content
+                [{:tag :b
+                  :attrs nil
+                  :content
+                  [{:tag :c
+                    :attrs nil
+                    :content nil}]}]}]})))))
 
 (deftest parser-options-trim
   (testing "Option 2 - Trim"
