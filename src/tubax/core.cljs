@@ -1,5 +1,5 @@
 (ns tubax.core
-  (:require ext.saxjs))
+  (:require sax))
 
 (defn- new-document []
   (list))
@@ -8,7 +8,8 @@
   [node document]
   (let [keytag (keyword (.-name node))
         att-map (js->clj (.-attributes node) :keywordize-keys true)
-        node-value {:tag keytag :attributes att-map :content []}]
+        att-map (when-not (empty? att-map) att-map)
+        node-value {:tag keytag :attrs att-map :content nil}]
     (-> document (conj node-value))))
 
 (defn- close-node-document
@@ -17,7 +18,7 @@
     (let [current-node    (first document)
           father-node     (first (rest document))
           father-children (:content father-node)
-          new-father (assoc father-node :content (conj father-children current-node))]
+          new-father (assoc father-node :content ((fnil conj []) father-children current-node))]
       (conj (rest (rest document)) new-father))
     document))
 
@@ -26,7 +27,7 @@
   (if (not (empty? text))
     (let [current-node (first document)
           node-children (:content current-node)
-          new-node-value (assoc current-node :content (conj node-children text))]
+          new-node-value (assoc current-node :content ((fnil conj []) node-children text))]
       (conj (rest document) new-node-value))
     document))
 
@@ -34,25 +35,30 @@
   [document]
   (first document))
 
+(defn- create-parser [{:keys [strict trim normalize
+                              lowercase xmlns position
+                              strict-entities]
+                       :or {strict true
+                            trim true
+                            normalize false
+                            lowercase true
+                            position true
+                            strict-entities false}}]
+  (.parser js/sax strict #js
+           {"trim" trim
+            "normalize" normalize
+            "lowercase" lowercase
+            "xmlns" xmlns
+            "position" position
+            "strictEntities" strict-entities}))
+
 (defn xml->clj
   ([source] (xml->clj source {}))
-  ([source {:keys [strict trim normalize
-                   lowercase xmlns position
-                   strict-entities]
-            :or {strict true
-                 trim true
-                 normalize false
-                 lowercase true
-                 position true
-                 strict-entities false}}]
-   (let [parser (.parser js/sax strict #js {"trim" trim
-                                            "normalize" normalize
-                                            "lowercase" lowercase
-                                            "xmlns" xmlns
-                                            "position" position
-                                            "strictEntities" strict-entities})
+  ([source options]
+   (let [parser (create-parser options)
          document (atom (new-document))
          result (atom nil)]
+
      ;; OPEN TAG
      (set! (.-onopentag parser)
            #(swap! document (partial add-node-document %)))

@@ -1,31 +1,32 @@
-(ns tubax.core-test
-  (:require [tubax.core :as core]
-            [cljs.test :as test :refer-macros [deftest is testing]]))
+(ns tubax.tests.test-core
+  (:require
+   [tubax.core :as core]
+   [cljs.test :refer-macros [deftest is testing]]))
 
 ;;; TEST SUCCESS
 (deftest parser-case1
   (testing "Case 1 - Empty element"
     (let [xml "<element/>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {} :content []})))))
+      (is (= result {:tag :element :attrs nil :content nil})))))
 
 (deftest parser-case2
   (testing "Case 2 - Empty element with attributes"
     (let [xml "<element att1='a' att2='b'/>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {:att1 "a" :att2 "b"} :content []})))))
+      (is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content nil})))))
 
 (deftest parser-case3
   (testing "Case 3 - Text element"
     (let [xml "<element>value</element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {} :content ["value"]})))))
+      (is (= result {:tag :element :attrs nil :content ["value"]})))))
 
 (deftest parser-case4
   (testing "Case 4 - Text + attributes element"
     (let [xml "<element att1='a' att2='b'>value</element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {:att1 "a" :att2 "b"} :content ["value"]})))))
+      (is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content ["value"]})))))
 
 (deftest parser-case5
   (testing "Case 5 - Subtree elements (no repetition)"
@@ -36,11 +37,11 @@
                  </element>"
           result (-> xml core/xml->clj)]
       (is (= result {:tag :element
-                     :attributes {}
+                     :attrs nil
                      :content
-                     [{:tag :elem-a :attributes {} :content ["1"]}
-                      {:tag :elem-b :attributes {} :content ["2"]}
-                      {:tag :elem-c :attributes {} :content ["3"]}]})))))
+                     [{:tag :elem-a :attrs nil :content ["1"]}
+                      {:tag :elem-b :attrs nil :content ["2"]}
+                      {:tag :elem-c :attrs nil :content ["3"]}]})))))
 
 (deftest parser-case6
   (testing "Case 6 - Subtree elements (repetition)"
@@ -51,11 +52,11 @@
                  </element>"
           result (-> xml core/xml->clj)]
       (is (= result {:tag :element
-                     :attributes {}
+                     :attrs nil
                      :content
-                     [{:tag :elem-a :attributes {} :content ["1"]}
-                      {:tag :elem-a :attributes {} :content ["2"]}
-                      {:tag :elem-b :attributes {} :content ["3"]}]})))))
+                     [{:tag :elem-a :attrs nil :content ["1"]}
+                      {:tag :elem-a :attrs nil :content ["2"]}
+                      {:tag :elem-b :attrs nil :content ["3"]}]})))))
 
 (deftest parser-case7
   (testing "Case 7 - Nested tree"
@@ -68,16 +69,16 @@
                  </element>"
           result (-> xml core/xml->clj)]
       (is (= result {:tag :element
-                     :attributes {}
+                     :attrs nil
                      :content
                      [{:tag :elem-a
-                       :attributes {}
+                       :attrs nil
                        :content
                        [{:tag :elem-b
-                         :attributes {}
+                         :attrs nil
                          :content
                          [{:tag :elem-c
-                           :attributes {}
+                           :attrs nil
                            :content ["test"]}]}]}]})))))
 
 (deftest parser-case8
@@ -95,19 +96,19 @@
           result (-> xml core/xml->clj)]
       (is (= result
              {:tag :element
-              :attributes {}
+              :attrs nil
               :content
               [{:tag :elem-a
-                :attributes {}
+                :attrs nil
                 :content
                 [{:tag :elem-b
-                  :attributes {}
+                  :attrs nil
                   :content
-                  [{:tag :elem-c :attributes {} :content ["test1"]}
-                   {:tag :elem-c :attributes {} :content ["test2"]}
-                   {:tag :elem-c :attributes {} :content ["test3"]}]}]}
+                  [{:tag :elem-c :attrs nil :content ["test1"]}
+                   {:tag :elem-c :attrs nil :content ["test2"]}
+                   {:tag :elem-c :attrs nil :content ["test3"]}]}]}
                {:tag :elem-a
-                :attributes {}
+                :attrs nil
                 :content ["other"]}]})))))
 
 
@@ -139,30 +140,30 @@
                  </rss>"
           result (-> xml core/xml->clj)]
       (is (= result
-             {:tag :rss :attributes {:version "2.0"}
+             {:tag :rss :attrs {:version "2.0"}
               :content
-              [{:tag :channel :attributes {}
+              [{:tag :channel :attrs nil
                 :content
-                [{:tag :title :attributes {} :content ["RSS Title"]}
-                 {:tag :description :attributes {} :content ["This is an example of an RSS feed"]}
-                 {:tag :link :attributes {} :content ["http://www.example.com/main.html"]}
-                 {:tag :lastBuildDate :attributes {} :content ["Mon, 06 Sep 2010 00:01:00 +0000"]}
-                 {:tag :pubDate :attributes {} :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}
-                 {:tag :ttl :attributes {} :content ["1800"]}
-                 {:tag :item :attributes {}
+                [{:tag :title :attrs nil :content ["RSS Title"]}
+                 {:tag :description :attrs nil :content ["This is an example of an RSS feed"]}
+                 {:tag :link :attrs nil :content ["http://www.example.com/main.html"]}
+                 {:tag :lastBuildDate :attrs nil :content ["Mon, 06 Sep 2010 00:01:00 +0000"]}
+                 {:tag :pubDate :attrs nil :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}
+                 {:tag :ttl :attrs nil :content ["1800"]}
+                 {:tag :item :attrs nil
                   :content
-                  [{:tag :title :attributes {} :content ["Example entry"]}
-                   {:tag :description :attributes {} :content ["Here is some text containing an interesting description."]}
-                   {:tag :link :attributes {} :content ["http://www.example.com/blog/post/1"]}
-                   {:tag :guid :attributes {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
-                   {:tag :pubDate :attributes {} :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}]}
-                 {:tag :item :attributes {}
+                  [{:tag :title :attrs nil :content ["Example entry"]}
+                   {:tag :description :attrs nil :content ["Here is some text containing an interesting description."]}
+                   {:tag :link :attrs nil :content ["http://www.example.com/blog/post/1"]}
+                   {:tag :guid :attrs {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
+                   {:tag :pubDate :attrs nil :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}]}
+                 {:tag :item :attrs nil
                   :content
-                  [{:tag :title :attributes {} :content ["Example entry2"]}
-                   {:tag :description :attributes {} :content ["Here is some text containing an interesting description."]}
-                   {:tag :link :attributes {} :content ["http://www.example.com/blog/post/1"]}
-                   {:tag :guid :attributes {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
-                   {:tag :pubDate :attributes {} :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}]}]}]})))))
+                  [{:tag :title :attrs nil :content ["Example entry2"]}
+                   {:tag :description :attrs nil :content ["Here is some text containing an interesting description."]}
+                   {:tag :link :attrs nil :content ["http://www.example.com/blog/post/1"]}
+                   {:tag :guid :attrs {:isPermaLink "false"} :content ["7bd204c6-1655-4c27-aeee-53f933c5395f"]}
+                   {:tag :pubDate :attrs nil :content ["Sun, 06 Sep 2009 16:20:00 +0000"]}]}]}]})))))
 
 
 ;;; TEST ERRORS
@@ -183,33 +184,33 @@
       (is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
       (is (= (core/xml->clj xml {:strict false})
              {:tag :element
-              :attributes {}
+              :attrs nil
               :content
               [{:tag :a
-                :attributes {}
+                :attrs nil
                 :content
-                [{:tag :b :attributes {} :content []}]}]})))))
+                [{:tag :b :attrs nil :content nil}]}]})))))
 
 (deftest parser-options-trim
   (testing "Option 2 - Trim"
     (let [xml "<element>  test  </element>"]
-      (is (= (core/xml->clj xml {:trim false}) {:tag :element :attributes {} :content ["  test  "]}))
-      (is (= (core/xml->clj xml {:trim true}) {:tag :element :attributes {} :content ["test"]}))
-      (is (= (core/xml->clj xml) {:tag :element :attributes {} :content ["test"]})))))
+      (is (= (core/xml->clj xml {:trim false}) {:tag :element :attrs nil :content ["  test  "]}))
+      (is (= (core/xml->clj xml {:trim true}) {:tag :element :attrs nil :content ["test"]}))
+      (is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["test"]})))))
 
 (deftest parser-options-normalize
   (testing "Option 3 - Normalize"
     (let [xml "<element>testing\nnormalize</element>"]
-      (is (= (core/xml->clj xml {:normalize false}) {:tag :element :attributes {} :content ["testing\nnormalize"]}))
-      (is (= (core/xml->clj xml {:normalize true}) {:tag :element :attributes {} :content ["testing normalize"]}))
-      (is (= (core/xml->clj xml) {:tag :element :attributes {} :content ["testing\nnormalize"]})))))
+      (is (= (core/xml->clj xml {:normalize false}) {:tag :element :attrs nil :content ["testing\nnormalize"]}))
+      (is (= (core/xml->clj xml {:normalize true}) {:tag :element :attrs nil :content ["testing normalize"]}))
+      (is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["testing\nnormalize"]})))))
 
 (deftest parser-options-lowercase
   (testing "Option 4 - Lowercase"
     (let [xml "<element att1='att'>test</element>"]
-      (is (= (core/xml->clj xml {:strict false :lowercase false}) {:tag :ELEMENT :attributes {:ATT1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml {:strict false :lowercase true}) {:tag :element :attributes {:att1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml {:strict false}) {:tag :element :attributes {:att1 "att"} :content ["test"]})))))
+      (is (= (core/xml->clj xml {:strict false :lowercase false}) {:tag :ELEMENT :attrs {:ATT1 "att"} :content ["test"]}))
+      (is (= (core/xml->clj xml {:strict false :lowercase true}) {:tag :element :attrs {:att1 "att"} :content ["test"]}))
+      (is (= (core/xml->clj xml {:strict false}) {:tag :element :attrs {:att1 "att"} :content ["test"]})))))
 
 (deftest parser-options-xmlns
   (testing "Option 5 - XMLNS"
@@ -218,14 +219,14 @@
                   <test>b</test>
                </element>"]
       (is (= (core/xml->clj xml {:xmlns false})
-             {:tag :element :attributes {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
+             {:tag :element :attrs {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
               :content
-              [{:tag :t:test :attributes {} :content ["a"]}
-               {:tag :test :attributes {} :content ["b"]}]}))
+              [{:tag :t:test :attrs nil :content ["a"]}
+               {:tag :test :attrs nil :content ["b"]}]}))
 
       (is (= (core/xml->clj xml {:xmlns true})
              {:tag :element
-              :attributes
+              :attrs
               {:xmlns   {:name "xmlns"
                          :value "http://foo"
                          :prefix "xmlns"
@@ -242,35 +243,35 @@
                         :local "att1"
                         :uri "http://t"}}
               :content
-              [{:tag :t:test :attributes {} :content ["a"]}
-               {:tag :test :attributes {} :content ["b"]}]}))
+              [{:tag :t:test :attrs nil :content ["a"]}
+               {:tag :test :attrs nil :content ["b"]}]}))
       (is (= (core/xml->clj xml)
              {:tag :element
-              :attributes {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
+              :attrs {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
               :content
-              [{:tag :t:test :attributes {} :content ["a"]}
-               {:tag :test :attributes {} :content ["b"]}]})))))
+              [{:tag :t:test :attrs nil :content ["a"]}
+               {:tag :test :attrs nil :content ["b"]}]})))))
 
 
 (deftest parser-options-strict-entities
   (testing "Option 6 - Strict Entities"
     (let [xml "<element att1='&amp;&lt;&aacute;'>&amp;&lt;&aacute;</element>"]
-      (is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]}))
+      (is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]}))
       (is (thrown? js/Error (= (core/xml->clj xml {:strict-entities true}))))
-      (is (= (core/xml->clj xml) {:tag :element :attributes {:att1 "&<á"} :content ["&<á"]})))))
+      (is (= (core/xml->clj xml) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]})))))
 
 ;; TEST CDATA
 (deftest parser-cdata
   (testing "Cdata value simple value"
     (let [xml "<element><![CDATA[value]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {} :content ["value"]}))))
+      (is (= result {:tag :element :attrs nil :content ["value"]}))))
   (testing "Cdata value multiple lines"
     (let [xml "<element><![CDATA[value\n\n\nvalue]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {} :content ["value\n\n\nvalue"]}))))
+      (is (= result {:tag :element :attrs nil :content ["value\n\n\nvalue"]}))))
   (testing "Cdata value with xml inside"
     (let [xml "<element><![CDATA[<test></test>]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attributes {} :content ["<test></test>"]})))))
+      (is (= result {:tag :element :attrs nil :content ["<test></test>"]})))))
 

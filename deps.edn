@@ -1,0 +1,14 @@
+{:paths ["src" "assets"]
+ :aliases
+ {:dev
+  {:extra-deps
+   {org.clojure/clojurescript {:mvn/version "1.10.844"}
+    org.clojure/clojure {:mvn/version "1.10.3"}
+    com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+    com.bhauman/rebel-readline {:mvn/version "0.1.4"}
+    funcool/promesa {:mvn/version "6.0.0"}}}
+
+  :jar
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.206"}}
+   :exec-fn hf.depstar/jar
+   :exec-args {:jar "target/tubax.jar"}}}}

@@ -7,13 +7,14 @@
   (and (map? node)
        (contains? node :tag)
        (keyword? (:tag node))
-       (contains? node :attributes)
-       (map? (:attributes node))
+       (contains? node :attrs)
+       (map? (:attrs node))
        (contains? node :content)
        (vector? (:content node))))
 
 (defn tag [{:keys [tag]}] tag)
-(defn attributes [{:keys [attributes]}] attributes)
+(defn attrs [{:keys [attrs]}] attrs)
+(defn attributes [{:keys [attrs]}] attrs)
 (defn children [{:keys [content]}] content)
 
 (defn text [node]
