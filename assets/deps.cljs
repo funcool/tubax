@@ -1,5 +1,5 @@
 {:foreign-libs
- [{:file "sax/sax.js"
-   :file-min "sax/sax.min.js"
-   :provides ["sax"]}]
- :externs ["sax/externs.js"]}
+ [{:file "tubax/saxjs/sax.js"
+   :file-min "tubax/saxjs/sax.min.js"
+   :provides ["tubax.saxjs"]}]
+ :externs ["tubax/saxjs/externs.js"]}

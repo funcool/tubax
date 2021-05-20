@@ -1,5 +1,5 @@
 (ns tubax.core
-  (:require sax))
+  (:require tubax.saxjs))
 
 (defn start-document []
   {:stack []
