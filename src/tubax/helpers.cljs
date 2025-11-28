@@ -14,7 +14,10 @@
 
 (defn tag [{:keys [tag]}] tag)
 (defn attrs [{:keys [attrs]}] attrs)
-(defn attributes [{:keys [attrs]}] attrs)
+
+(defn attributes
+  [{:keys [attrs]}] attrs)
+
 (defn children [{:keys [content]}] content)
 
 (defn text [node]

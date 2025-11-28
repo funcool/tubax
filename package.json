@@ -1,0 +1,27 @@
+{
+  "name": "tubax",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test:compile": "clojure -M:dev:shadow-cljs compile tests",
+    "test": "clojure -M:dev:shadow-cljs compile tests && node target/tests/test.js",
+    "test:watch": "mkdir -p target/tests && concurrently \"clojure -M:dev:shadow-cljs watch tests\" \"nodemon -C -d 2 -w target/tests --exec 'node target/tests/test.js'\""
+  },
+  "author": "",
+  "type": "module",
+  "license": "APACHE-2.0",
+  "dependencies": {
+    "sax": "^1.4.3",
+    "stream": "^0.0.3",
+    "string_decoder": "^1.3.0",
+    "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
+    "source-map-support": "^0.5.21",
+    "ws": "^8.18.0"
+  },
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+}

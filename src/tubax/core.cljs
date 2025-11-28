@@ -1,5 +1,6 @@
 (ns tubax.core
-  (:require tubax.saxjs))
+  (:require
+   ["sax" :as sax]))
 
 (defn start-document []
   {:stack []
@@ -48,22 +49,24 @@
     (not (empty? text))
     (update-in [:current :content] (fnil conj []) text)))
 
-(defn- create-parser [{:keys [strict trim normalize
-                              lowercase xmlns position
-                              strict-entities]
-                       :or {strict true
-                            trim true
-                            normalize false
-                            lowercase true
-                            position true
-                            strict-entities false}}]
-  (.parser js/sax strict #js
-           {"trim" trim
-            "normalize" normalize
-            "lowercase" lowercase
-            "xmlns" xmlns
-            "position" position
-            "strictEntities" strict-entities}))
+(defn- create-parser
+  [{:keys [strict trim normalize
+           lowercase xmlns position
+           strict-entities]
+    :or {strict true
+         trim true
+         normalize false
+         lowercase true
+         position true
+         strict-entities false}}]
+
+  (sax/parser strict
+              #js {"trim" trim
+                   "normalize" normalize
+                   "lowercase" lowercase
+                   "xmlns" xmlns
+                   "position" position
+                   "strictEntities" strict-entities}))
 
 (defn xml->clj
   ([source] (xml->clj source {}))

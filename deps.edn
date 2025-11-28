@@ -1,14 +1,40 @@
-{:paths ["src" "assets"]
+{:paths ["src"],
  :aliases
  {:dev
   {:extra-deps
-   {org.clojure/clojurescript {:mvn/version "1.10.844"}
-    org.clojure/clojure {:mvn/version "1.10.3"}
-    com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
-    com.bhauman/rebel-readline {:mvn/version "0.1.4"}
-    funcool/promesa {:mvn/version "6.0.0"}}}
+   {com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"},
+    com.bhauman/rebel-readline {:mvn/version "RELEASE"},
+    org.clojure/tools.namespace {:mvn/version "RELEASE"},
+    org.clojure/core.async {:mvn/version "1.6.673"}
+    org.clojure/clojure {:mvn/version "1.12.1"}
+    criterium/criterium {:mvn/version "RELEASE"}
+    thheller/shadow-cljs {:mvn/version "RELEASE"}}
 
-  :jar
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.206"}}
-   :exec-fn hf.depstar/jar
-   :exec-args {:jar "target/tubax.jar"}}}}
+   :extra-paths ["test" "dev"]}
+
+  :repl
+  {:main-opts  ["-m" "rebel-readline.main"]}
+
+  :shadow-cljs
+  {:main-opts ["-m" "shadow.cljs.devtools.cli"]
+   :jvm-opts ["--sun-misc-unsafe-memory-access=allow"]}
+
+  :codox
+  {:extra-deps
+   {codox/codox {:mvn/version "RELEASE"}
+    org.clojure/tools.reader {:mvn/version "RELEASE"}
+    codox-theme-rdash/codox-theme-rdash {:mvn/version "RELEASE"}}}
+
+  :build
+  {:extra-paths ["resources"]
+   :extra-deps
+   {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}
+    org.clojure/clojurescript {:mvn/version "RELEASE"}
+    org.clojure/tools.deps.alpha {:mvn/version "RELEASE"}}
+   :ns-default build}
+
+  :outdated
+  {:extra-deps
+   {com.github.liquidz/antq {:mvn/version "RELEASE"}
+    org.slf4j/slf4j-nop {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "antq.core"]}}}

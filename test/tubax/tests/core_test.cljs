@@ -1,65 +1,65 @@
-(ns tubax.tests.test-core
+(ns tubax.tests.core-test
   (:require
    [tubax.core :as core]
-   [cljs.test :refer-macros [deftest is testing]]))
+   [cljs.test :as t]))
 
-;;; TEST SUCCESS
-(deftest parser-case1
-  (testing "Case 1 - Empty element"
+;; TEST SUCCESS
+(t/deftest parser-case1
+  (t/testing "Case 1 - Empty element"
     (let [xml "<element/>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs nil :content nil})))))
+      (t/is (= result {:tag :element :attrs nil :content nil})))))
 
-(deftest parser-case2
-  (testing "Case 2 - Empty element with attributes"
+(t/deftest parser-case2
+  (t/testing "Case 2 - Empty element with attributes"
     (let [xml "<element att1='a' att2='b'/>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content nil})))))
+      (t/is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content nil})))))
 
-(deftest parser-case3
-  (testing "Case 3 - Text element"
+(t/deftest parser-case3
+  (t/testing "Case 3 - Text element"
     (let [xml "<element>value</element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs nil :content ["value"]})))))
+      (t/is (= result {:tag :element :attrs nil :content ["value"]})))))
 
-(deftest parser-case4
-  (testing "Case 4 - Text + attributes element"
+(t/deftest parser-case4
+  (t/testing "Case 4 - Text + attributes element"
     (let [xml "<element att1='a' att2='b'>value</element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content ["value"]})))))
+      (t/is (= result {:tag :element :attrs {:att1 "a" :att2 "b"} :content ["value"]})))))
 
-(deftest parser-case5
-  (testing "Case 5 - Subtree elements (no repetition)"
+(t/deftest parser-case5
+  (t/testing "Case 5 - Subtree elements (no repetition)"
     (let [xml "<element>
                    <elem-a>1</elem-a>
                    <elem-b>2</elem-b>
                    <elem-c>3</elem-c>
                  </element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element
+      (t/is (= result {:tag :element
                      :attrs nil
                      :content
                      [{:tag :elem-a :attrs nil :content ["1"]}
                       {:tag :elem-b :attrs nil :content ["2"]}
                       {:tag :elem-c :attrs nil :content ["3"]}]})))))
 
-(deftest parser-case6
-  (testing "Case 6 - Subtree elements (repetition)"
+(t/deftest parser-case6
+  (t/testing "Case 6 - Subtree elements (repetition)"
     (let [xml "<element>
                    <elem-a>1</elem-a>
                    <elem-a>2</elem-a>
                    <elem-b>3</elem-b>
                  </element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element
+      (t/is (= result {:tag :element
                      :attrs nil
                      :content
                      [{:tag :elem-a :attrs nil :content ["1"]}
                       {:tag :elem-a :attrs nil :content ["2"]}
                       {:tag :elem-b :attrs nil :content ["3"]}]})))))
 
-(deftest parser-case7
-  (testing "Case 7 - Nested tree"
+(t/deftest parser-case7
+  (t/testing "Case 7 - Nested tree"
     (let [xml "<element>
                    <elem-a>
                      <elem-b>
@@ -68,7 +68,7 @@
                    </elem-a>
                  </element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element
+      (t/is (= result {:tag :element
                      :attrs nil
                      :content
                      [{:tag :elem-a
@@ -81,8 +81,8 @@
                            :attrs nil
                            :content ["test"]}]}]}]})))))
 
-(deftest parser-case8
-  (testing "Case 8 - Nested tree with children"
+(t/deftest parser-case8
+  (t/testing "Case 8 - Nested tree with children"
     (let [xml "<element>
                    <elem-a>
                      <elem-b>
@@ -94,7 +94,7 @@
                    <elem-a>other</elem-a>
                  </element>"
           result (-> xml core/xml->clj)]
-      (is (= result
+      (t/is (= result
              {:tag :element
               :attrs nil
               :content
@@ -111,8 +111,8 @@
                 :attrs nil
                 :content ["other"]}]})))))
 
-(deftest parser-full
-  (testing "Full parser"
+(t/deftest parser-full
+  (t/testing "Full parser"
     (let [xml "<rss version=\"2.0\">
                    <channel>
                      <title>RSS Title</title>
@@ -138,7 +138,7 @@
                    </channel>
                  </rss>"
           result (-> xml core/xml->clj)]
-      (is (= result
+      (t/is (= result
              {:tag :rss :attrs {:version "2.0"}
               :content
               [{:tag :channel :attrs nil
@@ -166,22 +166,22 @@
 
 
 ;;; TEST ERRORS
-(deftest parser-error1
-  (testing "Error 1 - XML Syntax error"
+(t/deftest parser-error1
+  (t/testing "Error 1 - XML Syntax error"
     (let [xml "<element><a></element>"]
-      (is (thrown? js/Error (-> xml core/xml->clj))))))
+      (t/is (thrown? js/Error (-> xml core/xml->clj))))))
 
-(deftest parser-error2
-  (testing "Error 2 - Unfinished XML"
+(t/deftest parser-error2
+  (t/testing "Error 2 - Unfinished XML"
     (let [xml "<element><a><b></b></a>"]
-      (is (thrown? js/Error (-> xml core/xml->clj))))))
+      (t/is (thrown? js/Error (-> xml core/xml->clj))))))
 
 ;;; TEST OPTIONS
-(deftest parser-options-strict
-  (testing "Option 1 - Strict mode"
+(t/deftest parser-options-strict
+  (t/testing "Option 1 - Strict mode"
     (let [xml "<element><a><b></b></a>"]
-      (is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
-      (is (= (core/xml->clj xml {:strict false})
+      (t/is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
+      (t/is (= (core/xml->clj xml {:strict false})
              {:tag :element
               :attrs nil
               :content
@@ -191,8 +191,8 @@
                 [{:tag :b :attrs nil :content nil}]}]})))
 
     (let [xml "<element><a><b><c></element>"]
-      (is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
-      (is (= (core/xml->clj xml {:strict false})
+      (t/is (thrown? js/Error (= (core/xml->clj xml {:strict true}))))
+      (t/is (= (core/xml->clj xml {:strict false})
              {:tag :element
               :attrs nil
               :content
@@ -206,40 +206,40 @@
                     :attrs nil
                     :content nil}]}]}]})))))
 
-(deftest parser-options-trim
-  (testing "Option 2 - Trim"
+(t/deftest parser-options-trim
+  (t/testing "Option 2 - Trim"
     (let [xml "<element>  test  </element>"]
-      (is (= (core/xml->clj xml {:trim false}) {:tag :element :attrs nil :content ["  test  "]}))
-      (is (= (core/xml->clj xml {:trim true}) {:tag :element :attrs nil :content ["test"]}))
-      (is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["test"]})))))
+      (t/is (= (core/xml->clj xml {:trim false}) {:tag :element :attrs nil :content ["  test  "]}))
+      (t/is (= (core/xml->clj xml {:trim true}) {:tag :element :attrs nil :content ["test"]}))
+      (t/is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["test"]})))))
 
-(deftest parser-options-normalize
-  (testing "Option 3 - Normalize"
-    (let [xml "<element>testing\nnormalize</element>"]
-      (is (= (core/xml->clj xml {:normalize false}) {:tag :element :attrs nil :content ["testing\nnormalize"]}))
-      (is (= (core/xml->clj xml {:normalize true}) {:tag :element :attrs nil :content ["testing normalize"]}))
-      (is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["testing\nnormalize"]})))))
+(t/deftest parser-options-normalize
+  (t/testing "Option 3 - Normalize"
+    (let [xml "<element>t/testing\nnormalize</element>"]
+      (t/is (= (core/xml->clj xml {:normalize false}) {:tag :element :attrs nil :content ["t/testing\nnormalize"]}))
+      (t/is (= (core/xml->clj xml {:normalize true}) {:tag :element :attrs nil :content ["t/testing normalize"]}))
+      (t/is (= (core/xml->clj xml) {:tag :element :attrs nil :content ["t/testing\nnormalize"]})))))
 
-(deftest parser-options-lowercase
-  (testing "Option 4 - Lowercase"
+(t/deftest parser-options-lowercase
+  (t/testing "Option 4 - Lowercase"
     (let [xml "<element att1='att'>test</element>"]
-      (is (= (core/xml->clj xml {:strict false :lowercase false}) {:tag :ELEMENT :attrs {:ATT1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml {:strict false :lowercase true}) {:tag :element :attrs {:att1 "att"} :content ["test"]}))
-      (is (= (core/xml->clj xml {:strict false}) {:tag :element :attrs {:att1 "att"} :content ["test"]})))))
+      (t/is (= (core/xml->clj xml {:strict false :lowercase false}) {:tag :ELEMENT :attrs {:ATT1 "att"} :content ["test"]}))
+      (t/is (= (core/xml->clj xml {:strict false :lowercase true}) {:tag :element :attrs {:att1 "att"} :content ["test"]}))
+      (t/is (= (core/xml->clj xml {:strict false}) {:tag :element :attrs {:att1 "att"} :content ["test"]})))))
 
-(deftest parser-options-xmlns
-  (testing "Option 5 - XMLNS"
+(t/deftest parser-options-xmlns
+  (t/testing "Option 5 - XMLNS"
     (let [xml "<element xmlns='http://foo' xmlns:t='http://t' t:att1='att'>
                   <t:test>a</t:test>
                   <test>b</test>
                </element>"]
-      (is (= (core/xml->clj xml {:xmlns false})
+      (t/is (= (core/xml->clj xml {:xmlns false})
              {:tag :element :attrs {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
               :content
               [{:tag :t:test :attrs nil :content ["a"]}
                {:tag :test :attrs nil :content ["b"]}]}))
 
-      (is (= (core/xml->clj xml {:xmlns true})
+      (t/is (= (core/xml->clj xml {:xmlns true})
              {:tag :element
               :attrs
               {:xmlns   {:name "xmlns"
@@ -260,7 +260,7 @@
               :content
               [{:tag :t:test :attrs nil :content ["a"]}
                {:tag :test :attrs nil :content ["b"]}]}))
-      (is (= (core/xml->clj xml)
+      (t/is (= (core/xml->clj xml)
              {:tag :element
               :attrs {:xmlns "http://foo", :xmlns:t "http://t", :t:att1 "att"}
               :content
@@ -268,25 +268,25 @@
                {:tag :test :attrs nil :content ["b"]}]})))))
 
 
-(deftest parser-options-strict-entities
-  (testing "Option 6 - Strict Entities"
+(t/deftest parser-options-strict-entities
+  (t/testing "Option 6 - Strict Entities"
     (let [xml "<element att1='&amp;&lt;&aacute;'>&amp;&lt;&aacute;</element>"]
-      (is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]}))
-      (is (thrown? js/Error (= (core/xml->clj xml {:strict-entities true}))))
-      (is (= (core/xml->clj xml) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]})))))
+      (t/is (= (core/xml->clj xml {:strict-entities false}) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]}))
+      (t/is (thrown? js/Error (= (core/xml->clj xml {:strict-entities true}))))
+      (t/is (= (core/xml->clj xml) {:tag :element :attrs {:att1 "&<á"} :content ["&<á"]})))))
 
 ;; TEST CDATA
-(deftest parser-cdata
-  (testing "Cdata value simple value"
+(t/deftest parser-cdata
+  (t/testing "Cdata value simple value"
     (let [xml "<element><![CDATA[value]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs nil :content ["value"]}))))
-  (testing "Cdata value multiple lines"
+      (t/is (= result {:tag :element :attrs nil :content ["value"]}))))
+  (t/testing "Cdata value multiple lines"
     (let [xml "<element><![CDATA[value\n\n\nvalue]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs nil :content ["value\n\n\nvalue"]}))))
-  (testing "Cdata value with xml inside"
+      (t/is (= result {:tag :element :attrs nil :content ["value\n\n\nvalue"]}))))
+  (t/testing "Cdata value with xml inside"
     (let [xml "<element><![CDATA[<test></test>]]></element>"
           result (-> xml core/xml->clj)]
-      (is (= result {:tag :element :attrs nil :content ["<test></test>"]})))))
+      (t/is (= result {:tag :element :attrs nil :content ["<test></test>"]})))))
 
