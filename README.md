@@ -6,6 +6,12 @@ http://en.wikipedia.org/wiki/Tubax
 While the timbre of the E♭ tubax is more focused and compact than that of the full-sized contrabass saxophone.
 </blockquote>
 
+funcool/tubax
+{:git/tag "v2025.11.28"
+ :git/sha "2d9a986"
+ :git/url "https://github.com/funcool/tubax.git"}
+```
+
 ## Rationale
 
 Currently there is no good way to parse XML and other markup languages
